@@ -1,0 +1,52 @@
+{
+  "name": "send-intent",
+  "version": "1.0.12",
+  "description": "Plugin for Capacitor to receive send intents in Ionic",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "rimraf ./dist",
+    "watch": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Carsten Klaffke",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/cli": "^2.0.1",
+    "@capacitor/core": "^2.0.1"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^2.0.1",
+    "@capacitor/ios": "^2.0.1",
+    "rimraf": "^3.0.0",
+    "typescript": "^3.8.3"
+  },
+  "files": [
+    "dist/",
+    "ios/",
+    "android/",
+    "SendIntent.podspec"
+  ],
+  "keywords": [
+    "capacitor",
+    "plugin",
+    "native"
+  ],
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    },
+    "android": {
+      "src": "android"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/carsten-klaffke/send-intent.git"
+  },
+  "bugs": {
+    "url": "https://github.com/carsten-klaffke/send-intent.git/issues"
+  },
+  "homepage": "https://carsten-klaffke.de"
+}
