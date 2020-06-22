@@ -1,4 +1,4 @@
-This is a small Capacitor plugin meant to be used in Ionic applications for checking if an Android "SEND"-intent was received. So far, it checks and returns only "SEND"-intents of type "text/plain".
+This is a small Capacitor plugin meant to be used in Ionic applications for checking if an Android "SEND"-intent was received. So far, it checks and returns "SEND"-intents of type "text/plain" or "image".
 
 <b>Usage:</b>
 
@@ -49,11 +49,39 @@ public class MainActivity extends BridgeActivity {
 
         // Initializes the Bridge
         this.init(savedInstanceState, new ArrayList<Class<? extends Plugin>>() {{
-            // Additional plugins you've installed go here
-            // Ex: add(TotallyAwesomePlugin.class);
             add(SendIntent.class);
         }});
     }
 
 }
 ```
+If you want to use checkIntent as a listener, you need to add the following code to your MainActivity:
+```
+ @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String action = intent.getAction();
+        String type = intent.getType();
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            bridge.getActivity().setIntent(intent);
+            bridge.eval("window.dispatchEvent(new Event('sendIntentReceived'))", new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String s) {
+                }
+            });
+        }
+    }
+```
+
+And then add the listener to your client:
+```
+window.addEventListener("sendIntentReceived", () => {
+   Plugins.SendIntent.checkSendIntentReceived().then((result: any) => {
+                   if (result.text) {
+                       ...
+                   }
+                  });
+            })
+```
+
+Using SendIntent as a listener can be useful if the intent doesn't trigger a rerender of your app. 
