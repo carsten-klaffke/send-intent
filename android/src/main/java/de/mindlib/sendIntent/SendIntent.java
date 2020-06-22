@@ -1,10 +1,7 @@
 package de.mindlib.sendIntent;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.util.Base64OutputStream;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
@@ -12,15 +9,11 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import org.apache.commons.io.IOUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Base64;
-import org.apache.commons.io.IOUtils;
 
 @NativePlugin()
 public class SendIntent extends Plugin {
