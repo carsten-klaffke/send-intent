@@ -14,4 +14,8 @@ public class SendIntent: CAPPlugin {
             "value": value
         ])
     }
+    
+    static func eval(js: String){
+        self.bridge.eval(js);
+    }
 }
