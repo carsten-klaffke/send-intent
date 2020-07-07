@@ -2,7 +2,7 @@ import Foundation
 
 public final class ShareStore {
 
-    static let store = ShareStore()
+    public static let store = ShareStore()
     private init() {
         self.text = ""
         self.url = ""
