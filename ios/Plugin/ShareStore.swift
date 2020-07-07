@@ -10,10 +10,6 @@ public final class ShareStore {
         self.processed = false
     }
 
-    public static func getStore() -> ShareStore {
-        return store;
-    }
-
     var text: String;
     var url: String;
     var image: String;

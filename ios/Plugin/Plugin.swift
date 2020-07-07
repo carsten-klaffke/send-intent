@@ -8,8 +8,9 @@ import Capacitor
 @objc(SendIntent)
 public class SendIntent: CAPPlugin {
     
+    let store = ShareStore.store
+
     @objc func checkSendIntentReceived(_ call: CAPPluginCall) {
-        let store = ShareStore.store
         if !store.processed {
             call.success([
                 "text": store.text,
@@ -22,5 +23,11 @@ public class SendIntent: CAPPlugin {
 
     open func eval(js: String){
         self.bridge.eval(js: js);
+    }
+
+    open func writeToStore(text: String, url: String, image: String){
+        store.text = text
+        store.url = url
+        store.image = image
     }
 }
