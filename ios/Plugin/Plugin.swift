@@ -8,7 +8,7 @@ import Capacitor
 @objc(SendIntent)
 public class SendIntent: CAPPlugin {
     
-    @objc func echo(_ call: CAPPluginCall) {
+    @objc func checkSendIntentReceived(_ call: CAPPluginCall) {
         let value = call.getString("value") ?? ""
         call.success([
             "value": value
