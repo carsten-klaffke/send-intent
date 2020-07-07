@@ -9,13 +9,18 @@ import Capacitor
 public class SendIntent: CAPPlugin {
     
     @objc func checkSendIntentReceived(_ call: CAPPluginCall) {
-        let value = call.getString("value") ?? ""
-        call.success([
-            "value": value
-        ])
+        let store = ShareStore.store
+        if !store.processed {
+            call.success([
+                "text": store.text,
+                "url": store.url,
+                "image": store.image
+            ])
+            store.processed = true
+        }
     }
-    
-    static func eval(js: String){
-        self.bridge.eval(js);
+
+    open func eval(js: String){
+        self.bridge.eval(js: js);
     }
 }

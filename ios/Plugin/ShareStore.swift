@@ -1,11 +1,17 @@
 import Foundation
 
-final class ShareStore {
-    
+public final class ShareStore {
+
     static let store = ShareStore()
-    private init() {}
+    private init() {
+        self.text = ""
+        self.url = ""
+        self.image = ""
+        self.processed = false
+    }
 
     var text: String;
-    var URL: String;
+    var url: String;
     var image: String;
+    var processed: Bool;
 }
