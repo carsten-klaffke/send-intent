@@ -21,13 +21,13 @@ public class SendIntent: CAPPlugin {
         }
     }
 
-    open func eval(js: String){
-        self.bridge.eval(js: js);
+    public override func load() {
+        let nc = NotificationCenter.default
+            nc.addObserver(self, selector: #selector(eval), name: Notification.Name("triggerSendIntent"), object: nil)
     }
 
-    open func writeToStore(text: String, url: String, image: String){
-        store.text = text
-        store.url = url
-        store.image = image
+    @objc open func eval(){
+        self.bridge.eval(js: "window.dispatchEvent(new Event('sendIntentReceived'))");
     }
+
 }
