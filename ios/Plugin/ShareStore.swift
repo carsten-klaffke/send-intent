@@ -2,7 +2,7 @@ import Foundation
 
 public final class ShareStore {
 
-    static let store = ShareStore()
+    public static let store = ShareStore()
     private init() {
         self.text = ""
         self.url = ""
@@ -10,8 +10,8 @@ public final class ShareStore {
         self.processed = false
     }
 
-    var text: String;
-    var url: String;
-    var image: String;
-    var processed: Bool;
+    public var text: String;
+    public var url: String;
+    public var image: String;
+    public var processed: Bool;
 }
