@@ -22,7 +22,7 @@ Plugins.SendIntent.checkSendIntentReceived().then((result: any) => {
                 }
                });
 ```
-Android:
+<b>Android:</b>
 
 Configure AndroidManifest.xml
 ```
@@ -89,7 +89,7 @@ window.addEventListener("sendIntentReceived", () => {
 
 Using SendIntent as a listener can be useful if the intent doesn't trigger a rerender of your app. 
 
-iOS:
+<b>iOS:</b>
 
 Create a share extension (<a href='https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionCreation.html#//apple_ref/doc/uid/TP40014214-CH5-SW1'>Creating an App extension</a>)
 
