@@ -171,6 +171,14 @@ The share extension is like a little standalone program, so to get to your app t
 Finally, in your AppDelegate.swift, override the following function like this:
 
 ```
+import SendIntent
+
+...
+
+let store = ShareStore.store
+
+...  
+
 func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
      
     guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
