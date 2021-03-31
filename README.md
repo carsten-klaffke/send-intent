@@ -104,6 +104,7 @@ class ShareViewController: SLComposeServiceViewController {
     private var urlString: String?
     private var textString: String?
     private var imageString: String?
+    private var fileString: String?
     
     override func isContentValid() -> Bool {
         // Do validation of contentText and/or NSExtensionContext attachments here
@@ -112,9 +113,10 @@ class ShareViewController: SLComposeServiceViewController {
     }
 
     override func didSelectPost() {
-        var urlString = "myScheme://?text=" + (self.textString ?? "");
+        var urlString = "mindlib://?text=" + (self.textString ?? "");
         urlString = urlString + "&url=" + (self.urlString ?? "");
         urlString = urlString + "&image=" + (self.imageString ?? "");
+        urlString = urlString + "&file=" + (self.fileString!.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
         let url = URL(string: urlString)!
         openURL(url)
         self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
@@ -137,10 +139,15 @@ class ShareViewController: SLComposeServiceViewController {
           attachment.loadItem(forTypeIdentifier: contentTypeURL, options: nil, completionHandler: { (results, error) in
                 if results != nil {
                 let url = results as! URL?
-                self.urlString = url!.absoluteString
+                if url!.isFileURL {
+                    do {
+                        self.fileString = try! String(contentsOf: url!, encoding: .utf8)
+                    }
+                } else {
+                    self.urlString = url!.absoluteString
+                }
             }
           })
-        
         
           attachment.loadItem(forTypeIdentifier: contentTypeText, options: nil, completionHandler: { (results, error) in
             if results != nil {
@@ -180,7 +187,12 @@ let store = ShareStore.store
 ...  
 
 func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-     
+    
+    var success = true
+    if CAPBridge.handleOpenUrl(url, options) {
+      success = FBSDKCoreKit.ApplicationDelegate.shared.application(app, open: url, options: options)
+    }
+    
     guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
         let params = components.queryItems else {
             return false
@@ -188,12 +200,13 @@ func application(_ app: UIApplication, open url: URL, options: [UIApplication.Op
     store.text = params.first(where: { $0.name == "text" })?.value as! String
     store.url = params.first(where: { $0.name == "url" })?.value as! String
     store.image = params.first(where: { $0.name == "image" })?.value as! String
+    store.file = params.first(where: { $0.name == "file" })?.value?.removingPercentEncoding as! String
     store.processed = false
     let nc = NotificationCenter.default
     nc.post(name: Notification.Name("triggerSendIntent"), object: nil )
     
     return success
-    }
+}
 ```
 This is the function started when an application is open by URL.
 
