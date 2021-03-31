@@ -11,9 +11,14 @@ import com.getcapacitor.PluginMethod;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 @NativePlugin()
 public class SendIntent extends Plugin {
@@ -25,16 +30,38 @@ public class SendIntent extends Plugin {
         if (!"intent handled".equals(intent.getAction())) {
             String action = intent.getAction();
             String type = intent.getType();
-            String stringExtra = intent.getStringExtra(Intent.EXTRA_TEXT);
             intent.setAction("intent handled");
             if (Intent.ACTION_SEND.equals(action) && type != null) {
                 if ("text/plain".equals(type)) {
                     JSObject ret = new JSObject();
-                    ret.put("text", stringExtra);
+                    String stringExtra = intent.getStringExtra(Intent.EXTRA_TEXT);
+                    if (stringExtra == null) {
+                        if (intent.getClipData() != null &&
+                                intent.getClipData().getItemAt(0) != null &&
+                                intent.getClipData().getItemAt(0).getUri() != null)
+                            try {
+                                ret.put("file", getStringFromFile(getContext().getContentResolver().openInputStream(intent.getClipData().getItemAt(0).getUri())));
+                                call.resolve(ret);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                    } else
+                        ret.put("text", stringExtra);
                     call.resolve(ret);
                 } else if (type.startsWith("image/")) {
                     JSObject ret = new JSObject();
-                    ret.put("image", encoder((Uri)intent.getExtras().get(Intent.EXTRA_STREAM)));
+                    ret.put("image", encoder((Uri) intent.getExtras().get(Intent.EXTRA_STREAM)));
+                    call.resolve(ret);
+                } else if (type.equals("application/octet-stream")) {
+                    JSObject ret = new JSObject();
+                    if (intent.getClipData() != null &&
+                            intent.getClipData().getItemAt(0) != null &&
+                            intent.getClipData().getItemAt(0).getUri() != null)
+                        try {
+                            ret.put("file", getStringFromFile(getContext().getContentResolver().openInputStream(intent.getClipData().getItemAt(0).getUri())));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     call.resolve(ret);
                 }
             } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
@@ -62,6 +89,23 @@ public class SendIntent extends Plugin {
             System.out.println("Exception while reading the Image " + ioe);
         }
         return base64Image;
+    }
+
+    private static String convertStreamToString(InputStream is) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        reader.close();
+        return sb.toString();
+    }
+
+    private static String getStringFromFile(InputStream io) throws Exception {
+        String ret = convertStreamToString(io);
+        io.close();
+        return ret;
     }
 
 }
