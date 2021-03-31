@@ -15,9 +15,12 @@ public class SendIntent: CAPPlugin {
             call.success([
                 "text": store.text,
                 "url": store.url,
-                "image": store.image
+                "image": store.image,
+                "file": store.file
             ])
             store.processed = true
+        } else {
+            call.reject("No processing needed.")
         }
     }
 
