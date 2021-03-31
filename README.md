@@ -116,7 +116,7 @@ class ShareViewController: SLComposeServiceViewController {
         var urlString = "mindlib://?text=" + (self.textString ?? "");
         urlString = urlString + "&url=" + (self.urlString ?? "");
         urlString = urlString + "&image=" + (self.imageString ?? "");
-        urlString = urlString + "&file=" + (self.fileString!.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
+        urlString = urlString + "&file=" + (self.fileString?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
         let url = URL(string: urlString)!
         openURL(url)
         self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
