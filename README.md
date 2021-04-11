@@ -1,4 +1,4 @@
-This is a small Capacitor plugin meant to be used in Ionic applications for checking if an Android "SEND"-intent was received. So far, it checks and returns "SEND"-intents of type "text/plain" or "image".
+This is a small Capacitor plugin meant to be used in Ionic applications for checking if your App was targeted as a share goal. It supports both Android and iOS. So far, it checks and returns "SEND"-intents of mimeType "text/plain" or "image" and files "application/octet-stream" (files).
 
 Check out my app <a href="https://play.google.com/store/apps/details?id=de.mindlib">mindlib - your personal mind library</a> to see it in action.
 
