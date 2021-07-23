@@ -34,11 +34,14 @@ Configure AndroidManifest.xml
     android:launchMode="singleTask">
 
     <intent-filter>
-        <action android:name="android.intent.action.SEND" />
+          <action android:name="android.intent.action.SEND" />
 
-        <category android:name="android.intent.category.DEFAULT" />
+          <category android:name="android.intent.category.DEFAULT" />
+          <category android:name="android.intent.category.BROWSABLE" />
 
-        <data android:mimeType="text/plain" />
+          <data android:mimeType="text/plain" />
+          <data android:mimeType="image/*" />
+          <data android:mimeType="application/octet-stream" />
     </intent-filter>
 </activity>
 ```
