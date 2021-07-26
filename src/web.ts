@@ -14,10 +14,3 @@ export class SendIntentWeb extends WebPlugin implements SendIntentPlugin {
   }
 
 }
-
-const SendIntent = new SendIntentWeb();
-
-export { SendIntent };
-
-import { registerWebPlugin } from '@capacitor/core';
-registerWebPlugin(SendIntent);

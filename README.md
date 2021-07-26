@@ -1,31 +1,35 @@
+# Send-Intent
+
 This is a small Capacitor plugin meant to be used in Ionic applications for checking if your App was targeted as a share goal. It supports both Android and iOS. So far, it checks and returns "SEND"-intents of mimeType "text/plain", "image" or "application/octet-stream" (files).
 
-Check out my app <a href="https://play.google.com/store/apps/details?id=de.mindlib">mindlib - your personal mind library</a> to see it in action.
+Check out my app [mindlib - your personal mind library](https://play.google.com/store/apps/details?id=de.mindlib) to see it in action.
 
-<b>Usage:</b>
+## Usage
 
 Register in JS
-```
-import {registerWebPlugin} from "@capacitor/core";
-import {SendIntent} from "send-intent";
-registerWebPlugin(SendIntent);
+
+```js
+import "send-intent";
 ```
 
 Sample call
-```
+
+```js
 import {Plugins} from '@capacitor/core';
 const {SendIntent} = Plugins;
 
 Plugins.SendIntent.checkSendIntentReceived().then((result: any) => {
-                if (result.text) {
-                    ...
-                }
-               });
+    if (result.text) {
+        // ...
+    }
+});
 ```
-<b>Android:</b>
+
+## **Android**
 
 Configure AndroidManifest.xml
-```
+
+```xml
 <activity
     android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale"
     android:name="io.ionic.starter.MainActivity"
@@ -47,7 +51,8 @@ Configure AndroidManifest.xml
 ```
 
 Register in activity
-```
+
+```java
 public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,26 +66,29 @@ public class MainActivity extends BridgeActivity {
 
 }
 ```
+
 If you want to use checkIntent as a listener, you need to add the following code to your MainActivity:
-```
- @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        String action = intent.getAction();
-        String type = intent.getType();
-        if (Intent.ACTION_SEND.equals(action) && type != null) {
-            bridge.getActivity().setIntent(intent);
-            bridge.eval("window.dispatchEvent(new Event('sendIntentReceived'))", new ValueCallback<String>() {
-                @Override
-                public void onReceiveValue(String s) {
-                }
-            });
-        }
+
+```java
+@Override
+protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    String action = intent.getAction();
+    String type = intent.getType();
+    if (Intent.ACTION_SEND.equals(action) && type != null) {
+        bridge.getActivity().setIntent(intent);
+        bridge.eval("window.dispatchEvent(new Event('sendIntentReceived'))", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String s) {
+            }
+        });
     }
+}
 ```
 
 And then add the listener to your client:
-```
+
+```js
 window.addEventListener("sendIntentReceived", () => {
    Plugins.SendIntent.checkSendIntentReceived().then((result: any) => {
                    if (result.text) {
@@ -90,25 +98,26 @@ window.addEventListener("sendIntentReceived", () => {
             })
 ```
 
-Using SendIntent as a listener can be useful if the intent doesn't trigger a rerender of your app. 
+Using SendIntent as a listener can be useful if the intent doesn't trigger a rerender of your app.
 
-<b>iOS:</b>
+## **iOS**
 
-Create a share extension (<a href='https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionCreation.html#//apple_ref/doc/uid/TP40014214-CH5-SW1'>Creating an App extension</a>)
+Create a share extension ([Creating an App extension](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionCreation.html#//apple_ref/doc/uid/TP40014214-CH5-SW1))
 
 Code for the ShareViewController:
-```
+
+```swift
 import UIKit
 import Social
 import MobileCoreServices
 
 class ShareViewController: SLComposeServiceViewController {
-    
+
     private var urlString: String?
     private var textString: String?
     private var imageString: String?
     private var fileString: String?
-    
+
     override func isContentValid() -> Bool {
         // Do validation of contentText and/or NSExtensionContext attachments here
         print(contentText ?? "content is empty")
@@ -129,7 +138,7 @@ class ShareViewController: SLComposeServiceViewController {
         // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
         return []
     }
-    
+
     override func viewDidLoad() {
       super.viewDidLoad()
 
@@ -138,7 +147,7 @@ class ShareViewController: SLComposeServiceViewController {
       let contentTypeText = kUTTypeText as String
 
       for attachment in extensionItem.attachments as! [NSItemProvider] {
-    
+
           attachment.loadItem(forTypeIdentifier: contentTypeURL, options: nil, completionHandler: { (results, error) in
                 if results != nil {
                 let url = results as! URL?
@@ -151,7 +160,7 @@ class ShareViewController: SLComposeServiceViewController {
                 }
             }
           })
-        
+
           attachment.loadItem(forTypeIdentifier: contentTypeText, options: nil, completionHandler: { (results, error) in
             if results != nil {
                 let text = results as! String
@@ -159,10 +168,10 @@ class ShareViewController: SLComposeServiceViewController {
                 _ = self.isContentValid()
             }
           })
-        
+
       }
     }
-    
+
     @objc func openURL(_ url: URL) -> Bool {
         var responder: UIResponder? = self
         while responder != nil {
@@ -173,14 +182,15 @@ class ShareViewController: SLComposeServiceViewController {
         }
         return false
     }
-    
+
 }
 ```
-The share extension is like a little standalone program, so to get to your app the extension has to make an openURL call. In order to make your app reachable by a URL, you have to define a URL scheme (<a href='https://developer.apple.com/documentation/uikit/inter-process_communication/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app'>Register Your URL Scheme</a>). The code above calls a URL scheme named "myScheme" (first line in "didSelectPost"), so just replace this with your scheme.
+
+The share extension is like a little standalone program, so to get to your app the extension has to make an openURL call. In order to make your app reachable by a URL, you have to define a URL scheme ([Register Your URL Scheme](https://developer.apple.com/documentation/uikit/inter-process_communication/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app)). The code above calls a URL scheme named "myScheme" (first line in "didSelectPost"), so just replace this with your scheme.
 
 Finally, in your AppDelegate.swift, override the following function like this:
 
-```
+```swift
 import SendIntent
 
 ...
@@ -190,12 +200,12 @@ let store = ShareStore.store
 ...  
 
 func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-    
+
     var success = true
     if CAPBridge.handleOpenUrl(url, options) {
       success = FBSDKCoreKit.ApplicationDelegate.shared.application(app, open: url, options: options)
     }
-    
+
     guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
         let params = components.queryItems else {
             return false
@@ -207,19 +217,21 @@ func application(_ app: UIApplication, open url: URL, options: [UIApplication.Op
     store.processed = false
     let nc = NotificationCenter.default
     nc.post(name: Notification.Name("triggerSendIntent"), object: nil )
-    
+
     return success
 }
 ```
+
 This is the function started when an application is open by URL.
 
 Also, make sure you use SendIntent as a listener. Otherwise you will miss the event fired in the plugin:
-```
+
+```js
 window.addEventListener("sendIntentReceived", () => {
-   Plugins.SendIntent.checkSendIntentReceived().then((result: any) => {
-                   if (result.text) {
-                       ...
-                   }
-                  });
-            })
+    Plugins.SendIntent.checkSendIntentReceived().then((result: any) => {
+        if (result.text) {
+            // ...
+        }
+    });
+})
 ```
