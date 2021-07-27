@@ -5,6 +5,7 @@
   "dependencies": {
     "@capacitor/android": "^3.1.2",
     "@capacitor/core": "^3.1.2",
+    "@capacitor/ios": "^3.1.2",
     "@ionic/react": "^5.0.7",
     "@ionic/react-router": "^5.0.7",
     "@testing-library/jest-dom": "^4.2.4",
