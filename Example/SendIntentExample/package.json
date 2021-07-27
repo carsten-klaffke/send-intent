@@ -22,10 +22,11 @@
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
-    "send-intent": "^2.0.0",
+    "send-intent": "../..",
     "typescript": "3.8.3"
   },
   "scripts": {
+    "cap": "cap",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -48,6 +49,6 @@
   },
   "description": "An Ionic project",
   "devDependencies": {
-    "@capacitor/cli": "2.2.0"
+    "@capacitor/cli": "^3.1.2"
   }
 }
