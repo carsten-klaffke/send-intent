@@ -50,23 +50,6 @@ Configure AndroidManifest.xml
 </activity>
 ```
 
-Register in activity
-
-```java
-public class MainActivity extends BridgeActivity {
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // Initializes the Bridge
-        this.init(savedInstanceState, new ArrayList<Class<? extends Plugin>>() {{
-            add(SendIntent.class);
-        }});
-    }
-
-}
-```
-
 If you want to use checkIntent as a listener, you need to add the following code to your MainActivity:
 
 ```java
@@ -91,11 +74,11 @@ And then add the listener to your client:
 ```js
 window.addEventListener("sendIntentReceived", () => {
    Plugins.SendIntent.checkSendIntentReceived().then((result: any) => {
-                   if (result.text) {
-                       ...
-                   }
-                  });
-            })
+        if (result.text) {
+            // ...
+        }
+    });
+})
 ```
 
 Using SendIntent as a listener can be useful if the intent doesn't trigger a rerender of your app.
@@ -125,7 +108,7 @@ class ShareViewController: SLComposeServiceViewController {
     }
 
     override func didSelectPost() {
-        var urlString = "mindlib://?text=" + (self.textString ?? "");
+        var urlString = "YOUR_APP_URL_SCHEME://?text=" + (self.textString ?? "");
         urlString = urlString + "&url=" + (self.urlString ?? "");
         urlString = urlString + "&image=" + (self.imageString ?? "");
         urlString = urlString + "&file=" + (self.fileString?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
@@ -188,37 +171,73 @@ class ShareViewController: SLComposeServiceViewController {
 
 The share extension is like a little standalone program, so to get to your app the extension has to make an openURL call. In order to make your app reachable by a URL, you have to define a URL scheme ([Register Your URL Scheme](https://developer.apple.com/documentation/uikit/inter-process_communication/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app)). The code above calls a URL scheme named "myScheme" (first line in "didSelectPost"), so just replace this with your scheme.
 
+Add the pod `FBSDKCoreKit` to `ios/App/Podfile`:
+
+```diff
+platform :ios, '12.0'
+use_frameworks!
+
+# workaround to avoid Xcode caching of Pods that requires
+# Product -> Clean Build Folder after new Cordova plugins installed
+# Requires CocoaPods 1.6 or newer
+install! 'cocoapods', :disable_input_output_paths => true
+
+def capacitor_pods
+  pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'
+  pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/ios'
+  pod 'SendIntent', :path => '../../../..'
+end
+
+target 'App' do
+  capacitor_pods
+  # Add your Pods here
++ pod 'FBSDKCoreKit'
+end
+```
+
+And then run `pod install` in that folder.
+
 Finally, in your AppDelegate.swift, override the following function like this:
 
 ```swift
 import SendIntent
+import FBSDKCoreKit
 
-...
+// ...
 
-let store = ShareStore.store
+@UIApplicationMain
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
-...  
+    // ...
 
-func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+    let store = ShareStore.store
 
-    var success = true
-    if CAPBridge.handleOpenUrl(url, options) {
-      success = FBSDKCoreKit.ApplicationDelegate.shared.application(app, open: url, options: options)
+    // ...
+
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+
+        var success = true
+        if CAPBridge.handleOpenUrl(url, options) {
+        success = FBSDKCoreKit.ApplicationDelegate.shared.application(app, open: url, options: options)
+        }
+
+        guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
+            let params = components.queryItems else {
+                return false
+        }
+        store.text = params.first(where: { $0.name == "text" })?.value as! String
+        store.url = params.first(where: { $0.name == "url" })?.value as! String
+        store.image = params.first(where: { $0.name == "image" })?.value as! String
+        store.file = params.first(where: { $0.name == "file" })?.value?.removingPercentEncoding as! String
+        store.processed = false
+        let nc = NotificationCenter.default
+        nc.post(name: Notification.Name("triggerSendIntent"), object: nil )
+
+        return success
     }
 
-    guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
-        let params = components.queryItems else {
-            return false
-    }
-    store.text = params.first(where: { $0.name == "text" })?.value as! String
-    store.url = params.first(where: { $0.name == "url" })?.value as! String
-    store.image = params.first(where: { $0.name == "image" })?.value as! String
-    store.file = params.first(where: { $0.name == "file" })?.value?.removingPercentEncoding as! String
-    store.processed = false
-    let nc = NotificationCenter.default
-    nc.post(name: Notification.Name("triggerSendIntent"), object: nil )
+    // ...
 
-    return success
 }
 ```
 
