@@ -3,12 +3,12 @@ import React from 'react';
 import ExploreContainer from '../components/ExploreContainer';
 import './Home.css';
 
-import {Plugins} from '@capacitor/core';
+import { SendIntent } from 'send-intent';
 
 const Home: React.FC = () => {
 
     function checkIntent() {
-        Plugins.SendIntent.checkSendIntentReceived().then((result: any) => (async function (result: any) {
+        SendIntent.checkSendIntentReceived().then((result: any) => (async function (result: any) {
             alert(result.url)
             alert(result.text)
             alert(result.image)
