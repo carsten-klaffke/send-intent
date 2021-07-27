@@ -1,0 +1,6 @@
+[
+	{
+		"pkg": "send-intent",
+		"classpath": "de.mindlib.sendIntent.SendIntent"
+	}
+]
