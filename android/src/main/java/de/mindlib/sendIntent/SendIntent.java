@@ -51,6 +51,7 @@ public class SendIntent extends Plugin {
                 } else if (type.startsWith("image/")) {
                     JSObject ret = new JSObject();
                     ret.put("image", encoder((Uri) intent.getExtras().get(Intent.EXTRA_STREAM)));
+                    ret.put("text", intent.getStringExtra(Intent.EXTRA_TEXT));
                     call.resolve(ret);
                 } else if (type.equals("application/octet-stream")) {
                     JSObject ret = new JSObject();
