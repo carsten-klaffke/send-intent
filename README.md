@@ -4,24 +4,36 @@ This is a small Capacitor plugin meant to be used in Ionic applications for chec
 
 Check out my app [mindlib - your personal mind library](https://play.google.com/store/apps/details?id=de.mindlib) to see it in action.
 
+## Projects below Capacitor 3
+
+For projects below Capacitor 3 please use  "send-intent": "1.1.7".
+
 ## Usage
 
-Register in JS
+Import & Sample call
 
 ```js
-import "send-intent";
-```
+import {SendIntent} from "send-intent";
 
-Sample call
-
-```js
-import {Plugins} from '@capacitor/core';
-const {SendIntent} = Plugins;
-
-Plugins.SendIntent.checkSendIntentReceived().then((result: any) => {
-    if (result.text) {
-        // ...
-    }
+SendIntent.checkSendIntentReceived().then((result: any) => {
+                if (result.url || result.text || result.image || result.file) {
+                    
+                    if (result.title){
+                        ...
+                    }
+                    if (result.text) {
+                        ...
+                    }
+                    if (result.url) {
+                        ...
+                    }
+                    if (result.image) {
+                        ...
+                    }
+                    if (result.file) {
+                        ...
+                    }
+                }
 });
 ```
 
