@@ -1,7 +1,8 @@
 export interface Intent {
   text?: string;
-  image?: string;
   file?: string;
+  image?: string;
+  url?: string;
 }
 
 export interface SendIntentPlugin {
