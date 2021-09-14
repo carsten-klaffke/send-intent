@@ -8,6 +8,13 @@ Check out my app [mindlib - your personal mind library](https://play.google.com/
 
 For projects below Capacitor 3 please use  "send-intent": "1.1.7".
 
+## Installation
+
+```
+npm install send-intent
+npx cap sync
+```
+
 ## Usage
 
 Import & Sample call
@@ -266,3 +273,7 @@ window.addEventListener("sendIntentReceived", () => {
     });
 })
 ```
+
+## Donation
+
+If you want to support my work, you can donate me on bitcoin:bc1q60ntnlz4wqfup3yg3hyqmzfkuraf8clmvupqvs
