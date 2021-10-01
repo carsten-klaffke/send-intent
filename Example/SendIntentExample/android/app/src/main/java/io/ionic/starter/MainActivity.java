@@ -12,16 +12,16 @@ import java.util.ArrayList;
 import de.mindlib.sendIntent.SendIntent;
 
 public class MainActivity extends BridgeActivity {
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    // @Override
+    // public void onCreate(Bundle savedInstanceState) {
+    //     super.onCreate(savedInstanceState);
 
-        // Initializes the Bridge
-        this.init(savedInstanceState, new ArrayList<Class<? extends Plugin>>() {{
-            // Additional plugins you've installed go here
-            add(SendIntent.class);
-        }});
-    }
+    //     // Initializes the Bridge
+    //     this.init(savedInstanceState, new ArrayList<Class<? extends Plugin>>() {{
+    //         // Additional plugins you've installed go here
+    //         add(SendIntent.class);
+    //     }});
+    // }
 
     @Override
     protected void onNewIntent(Intent intent) {

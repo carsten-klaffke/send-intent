@@ -12,7 +12,7 @@ public class SendIntent: CAPPlugin {
 
     @objc func checkSendIntentReceived(_ call: CAPPluginCall) {
         if !store.processed {
-            call.success([
+            call.resolve([
                 "text": store.text,
                 "url": store.url,
                 "image": store.image,
@@ -30,7 +30,7 @@ public class SendIntent: CAPPlugin {
     }
 
     @objc open func eval(){
-        self.bridge.eval(js: "window.dispatchEvent(new Event('sendIntentReceived'))");
+        self.bridge?.eval(js: "window.dispatchEvent(new Event('sendIntentReceived'))");
     }
 
 }
