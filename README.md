@@ -104,7 +104,7 @@ Using SendIntent as a listener can be useful if the intent doesn't trigger a rer
 
 ## **iOS**
 
-Create a share extension ([Creating an App extension](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionCreation.html#//apple_ref/doc/uid/TP40014214-CH5-SW1))
+Create a "Share Extension" ([Creating an App extension](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionCreation.html#//apple_ref/doc/uid/TP40014214-CH5-SW1))
 
 Code for the ShareViewController:
 
