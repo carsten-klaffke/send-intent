@@ -27,47 +27,18 @@ public class SendIntent extends Plugin {
             String type = intent.getType();
             intent.setAction("intent handled");
             if (Intent.ACTION_SEND.equals(action) && type != null) {
-                if ("text/plain".equals(type)) {
-                    JSObject ret = new JSObject();
-                    String stringExtra = intent.getStringExtra(Intent.EXTRA_TEXT);
-                    if (stringExtra == null) {
-                        if (
-                            intent.getClipData() != null &&
-                            intent.getClipData().getItemAt(0) != null &&
-                            intent.getClipData().getItemAt(0).getUri() != null
-                        ) {
-                            try {
-                                ret.put("uri", intent.getClipData().getItemAt(0).getUri().toString());
-                                ret.put("mimeType", intent.getClipData().getDescription().getMimeType(0));
-                                ret.put("file", java.util.Base64.getEncoder().encodeToString(IOUtils.toByteArray(getContext().getContentResolver().openInputStream(intent.getClipData().getItemAt(0).getUri()))));
-                                call.resolve(ret);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }    
-                    } else {
-                        ret.put("text", stringExtra);
-                    }
-                    call.resolve(ret);
-                } else if (type.startsWith("image/")) {
-                    JSObject ret = new JSObject();
-                    ret.put("image", encoder((Uri) intent.getExtras().get(Intent.EXTRA_STREAM)));
-                    ret.put("text", intent.getStringExtra(Intent.EXTRA_TEXT));
-                    call.resolve(ret);
-                } else if (type.startsWith("application/")) {
-                    JSObject ret = new JSObject();
-                    if (intent.getClipData() != null &&
-                            intent.getClipData().getItemAt(0) != null &&
-                            intent.getClipData().getItemAt(0).getUri() != null)
-                        try {
-                            ret.put("uri", intent.getClipData().getItemAt(0).getUri().toString());
-                            ret.put("mimeType", intent.getClipData().getDescription().getMimeType(0));
-                            ret.put("file", java.util.Base64.getEncoder().encodeToString(IOUtils.toByteArray(getContext().getContentResolver().openInputStream(intent.getClipData().getItemAt(0).getUri()))));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    call.resolve(ret);
-                }
+                JSObject ret = new JSObject();
+                String title = intent.getStringExtra(Intent.EXTRA_TEXT);
+                Uri uri = intent.getClipData().getItemAt(0).getUri();
+
+                if(title == null && uri !=null)
+                    title = new File(uri.getPath()).getName();
+
+                ret.put("title", title)
+                ret.put("description", null)
+                ret.put("type", type)
+                ret.put("url", uri.toString())
+                call.resolve(ret);
             } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
                 if (type.startsWith("image/")) {
 
@@ -77,20 +48,6 @@ public class SendIntent extends Plugin {
             }
         }
         call.reject("No processing needed");
-    }
-
-    private String encoder(Uri imagePath) {
-        String base64Image = "";
-        try (InputStream inputStream = getContext().getContentResolver().openInputStream(imagePath);) {
-            byte[] bytes = IOUtils.toByteArray(inputStream);
-            base64Image = java.util.Base64.getEncoder().encodeToString(bytes);
-            base64Image = "data:image/jpg;base64," + base64Image;
-        } catch (FileNotFoundException e) {
-            System.out.println("Image not found" + e);
-        } catch (IOException ioe) {
-            System.out.println("Exception while reading the Image " + ioe);
-        }
-        return base64Image;
     }
 
 }
