@@ -13,10 +13,10 @@ public class SendIntent: CAPPlugin {
     @objc func checkSendIntentReceived(_ call: CAPPluginCall) {
         if !store.processed {
             call.resolve([
-                "text": store.text,
-                "url": store.url,
-                "image": store.image,
-                "file": store.file
+                "title": store.title,
+                "description": store.description,
+                "type": store.type,
+                "url": store.url
             ])
             store.processed = true
         } else {

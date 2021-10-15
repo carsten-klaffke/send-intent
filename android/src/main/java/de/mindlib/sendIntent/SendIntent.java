@@ -2,7 +2,6 @@ package de.mindlib.sendIntent;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -10,11 +9,7 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import org.apache.commons.io.FilenameUtils;
 
 @CapacitorPlugin()
 public class SendIntent extends Plugin {
@@ -32,12 +27,12 @@ public class SendIntent extends Plugin {
                 Uri uri = intent.getClipData().getItemAt(0).getUri();
 
                 if(title == null && uri !=null)
-                    title = new File(uri.getPath()).getName();
+                    title = FilenameUtils.getName(uri.getPath());
 
-                ret.put("title", title)
-                ret.put("description", null)
-                ret.put("type", type)
-                ret.put("url", uri.toString())
+                ret.put("title", title);
+                ret.put("description", null);
+                ret.put("type", type);
+                ret.put("url", uri.toString());
                 call.resolve(ret);
             } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
                 if (type.startsWith("image/")) {

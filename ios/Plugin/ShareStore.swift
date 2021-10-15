@@ -4,16 +4,16 @@ public final class ShareStore {
 
     public static let store = ShareStore()
     private init() {
-        self.text = ""
+        self.title = ""
+        self.description = ""
+        self.type = ""
         self.url = ""
-        self.image = ""
-        self.file = ""
         self.processed = false
     }
 
-    public var text: String;
+    public var title: String;
+    public var description: String;
+    public var type: String;
     public var url: String;
-    public var image: String;
-    public var file: String;
     public var processed: Bool;
 }
