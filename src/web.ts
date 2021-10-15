@@ -9,8 +9,8 @@ export class SendIntentWeb extends WebPlugin implements SendIntentPlugin {
     });
   }
 
-  async checkSendIntentReceived(): Promise<{text: string}> {
-    return {text: null};
+  async checkSendIntentReceived(): Promise<{title: string}> {
+    return {title: null};
   }
 
 }
