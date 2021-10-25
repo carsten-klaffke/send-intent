@@ -19,28 +19,26 @@ npx cap sync
 
 Import & Sample call
 
+Shared files will be received as URI-String. You can use Capacitor's [Filesystem](https://capacitorjs.com/docs/apis/filesystem) plugin to get the files content. 
+The "url"-property of the SendIntent result is also used for web urls, e.g. when sharing a website via browser, so it is not necessarily a file path. Make sure to handle this
+either through checking the "type"-property or by error handling.
+
 ```js
 import {SendIntent} from "send-intent";
 
 SendIntent.checkSendIntentReceived().then((result: any) => {
-                if (result.url || result.text || result.image || result.file) {
-                    
-                    if (result.title){
-                        ...
-                    }
-                    if (result.text) {
-                        ...
-                    }
-                    if (result.url) {
-                        ...
-                    }
-                    if (result.image) {
-                        ...
-                    }
-                    if (result.file) {
-                        ...
-                    }
-                }
+    if (result) {
+        console.log('SendIntent received');
+        console.log(JSON.stringify(result));
+    }
+    if (result.url) {
+        let resultUrl = decodeURIComponent(result.url);
+        Filesystem.readFile({path: resultUrl})
+        .then((content) => {
+            console.log(content.data);
+        })
+        .catch((err) => console.error(err));
+    }
 }).catch(err => console.error(err));
 ```
 
@@ -93,7 +91,7 @@ And then add the listener to your client:
 ```js
 window.addEventListener("sendIntentReceived", () => {
    Plugins.SendIntent.checkSendIntentReceived().then((result: any) => {
-        if (result.text) {
+        if (result) {
             // ...
         }
     });
@@ -114,66 +112,89 @@ import Social
 import MobileCoreServices
 
 class ShareViewController: SLComposeServiceViewController {
-
+    
+    private var titleString: String?
+    private var typeString: String?
     private var urlString: String?
-    private var textString: String?
-    private var imageString: String?
-    private var fileString: String?
-
+    
     override func isContentValid() -> Bool {
         // Do validation of contentText and/or NSExtensionContext attachments here
         print(contentText ?? "content is empty")
         return true
     }
-
+    
     override func didSelectPost() {
-        var urlString = "YOUR_APP_URL_SCHEME://?text=" + (self.textString ?? "");
-        urlString = urlString + "&url=" + (self.urlString ?? "");
-        urlString = urlString + "&image=" + (self.imageString ?? "");
-        urlString = urlString + "&file=" + (self.fileString?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
+        var urlString = "YOUR_APP_URL_SCHEME://?title=" + (self.titleString?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
+        urlString = urlString + "&description=" + (self.contentText?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
+        urlString = urlString + "&type=" + (self.typeString?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
+        urlString = urlString + "&url=" + (self.urlString?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
         let url = URL(string: urlString)!
         openURL(url)
         self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
     }
-
+    
     override func configurationItems() -> [Any]! {
         // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
         return []
     }
-
-    override func viewDidLoad() {
-      super.viewDidLoad()
-
-      let extensionItem = extensionContext?.inputItems[0] as! NSExtensionItem
-      let contentTypeURL = kUTTypeURL as String
-      let contentTypeText = kUTTypeText as String
-
-      for attachment in extensionItem.attachments as! [NSItemProvider] {
-
-          attachment.loadItem(forTypeIdentifier: contentTypeURL, options: nil, completionHandler: { (results, error) in
-                if results != nil {
-                let url = results as! URL?
-                if url!.isFileURL {
-                    do {
-                        self.fileString = try! String(contentsOf: url!, encoding: .utf8)
-                    }
-                } else {
-                    self.urlString = url!.absoluteString
-                }
-            }
-          })
-
-          attachment.loadItem(forTypeIdentifier: contentTypeText, options: nil, completionHandler: { (results, error) in
-            if results != nil {
-                let text = results as! String
-                self.textString = text
-                _ = self.isContentValid()
-            }
-          })
-
-      }
+    
+    fileprivate func setSharedFileUrl(_ url: URL?) {
+        let fileManager = FileManager.default
+        
+        let copyFileUrl = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "YOUR_APP_GROUP_ID")!.absoluteString + "/" + url!.lastPathComponent
+        
+        try? Data(contentsOf: url!).write(to: URL(string: copyFileUrl)!)
+        
+        self.urlString = copyFileUrl
     }
-
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        let extensionItem = extensionContext?.inputItems[0] as! NSExtensionItem
+        let contentTypeURL = kUTTypeURL as String
+        let contentTypeText = kUTTypeText as String
+        let contentTypeImage = kUTTypeImage as String
+        
+        for attachment in extensionItem.attachments as! [NSItemProvider] {
+            
+            attachment.loadItem(forTypeIdentifier: contentTypeURL, options: nil, completionHandler: { [self] (results, error) in
+                if results != nil {
+                    let url = results as! URL?
+                    if url!.isFileURL {
+                        self.titleString = url!.lastPathComponent
+                        self.typeString = "application/" + url!.pathExtension
+                        setSharedFileUrl(url)
+                    } else {
+                        self.titleString = url!.absoluteString
+                        self.urlString = url!.absoluteString
+                        self.typeString = "text/plain"
+                    }
+                    
+                }
+            })
+            
+            attachment.loadItem(forTypeIdentifier: contentTypeText, options: nil, completionHandler: { (results, error) in
+                if results != nil {
+                    let text = results as! String
+                    self.titleString = text
+                    _ = self.isContentValid()
+                    self.typeString = "text/plain"
+                }
+            })
+            
+            attachment.loadItem(forTypeIdentifier: contentTypeImage, options: nil, completionHandler: { [self] (results, error) in
+                if results != nil {
+                    let url = results as! URL?
+                    self.titleString = url!.lastPathComponent
+                    self.typeString = "image/" + url!.pathExtension
+                    setSharedFileUrl(url)
+                }
+            })
+            
+        }
+    }
+    
     @objc func openURL(_ url: URL) -> Bool {
         var responder: UIResponder? = self
         while responder != nil {
@@ -184,11 +205,13 @@ class ShareViewController: SLComposeServiceViewController {
         }
         return false
     }
-
+    
 }
+
 ```
 
-The share extension is like a little standalone program, so to get to your app the extension has to make an openURL call. In order to make your app reachable by a URL, you have to define a URL scheme ([Register Your URL Scheme](https://developer.apple.com/documentation/uikit/inter-process_communication/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app)). The code above calls a URL scheme named "myScheme" (first line in "didSelectPost"), so just replace this with your scheme.
+The share extension is like a little standalone program, so to get to your app the extension has to make an openURL call. In order to make your app reachable by a URL, you have to define a URL scheme ([Register Your URL Scheme](https://developer.apple.com/documentation/uikit/inter-process_communication/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app)). The code above calls a URL scheme named "YOUR_APP_URL_SCHEME" (first line in "didSelectPost"), so just replace this with your scheme.
+To allow sharing of files between the extension and your main app, you need to [create an app group](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_application-groups) which is checked for both your extension and main app. Replace "YOUR_APP_GROUP_ID" in "setSharedFileUrl()" with your app groups name.
 
 Finally, in your AppDelegate.swift, override the following function like this:
 
@@ -207,26 +230,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // ...
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-
-          var success = true
-          if CAPBridge.handleOpenUrl(url, options) {
-          success = ApplicationDelegateProxy.shared.application(app, open: url, options: options)
-          }
-
-          guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
+            
+        var success = true
+        if CAPBridge.handleOpenUrl(url, options) {
+            success = ApplicationDelegateProxy.shared.application(app, open: url, options: options)
+        }
+        
+        guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
               let params = components.queryItems else {
                   return false
-          }
-          store.text = params.first(where: { $0.name == "text" })?.value as! String
-          store.url = params.first(where: { $0.name == "url" })?.value as! String
-          store.image = params.first(where: { $0.name == "image" })?.value as! String
-          store.file = params.first(where: { $0.name == "file" })?.value?.removingPercentEncoding as! String
-          store.processed = false
-          let nc = NotificationCenter.default
-          nc.post(name: Notification.Name("triggerSendIntent"), object: nil )
-
-          return success
-      }
+              }
+        store.title = params.first(where: { $0.name == "title" })?.value as! String
+        store.description = params.first(where: { $0.name == "description" })?.value as! String
+        store.type = params.first(where: { $0.name == "type" })?.value as! String
+        store.url = params.first(where: { $0.name == "url" })?.value as! String
+        store.processed = false
+        let nc = NotificationCenter.default
+        nc.post(name: Notification.Name("triggerSendIntent"), object: nil )
+        
+        return success
+    }
 
     // ...
 
@@ -240,7 +263,7 @@ Also, make sure you use SendIntent as a listener. Otherwise you will miss the ev
 ```js
 window.addEventListener("sendIntentReceived", () => {
     Plugins.SendIntent.checkSendIntentReceived().then((result: any) => {
-        if (result.text) {
+        if (result) {
             // ...
         }
     });
