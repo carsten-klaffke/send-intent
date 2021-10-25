@@ -217,6 +217,7 @@ Finally, in your AppDelegate.swift, override the following function like this:
 
 ```swift
 import SendIntent
+import Capacitor
 
 // ...
 
