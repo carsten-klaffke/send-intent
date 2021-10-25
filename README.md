@@ -12,7 +12,7 @@ For projects below Capacitor 3 please use  "send-intent": "1.1.7".
 
 ```
 npm install send-intent
-npx cap update
+npx cap sync
 ```
 
 ## Usage
