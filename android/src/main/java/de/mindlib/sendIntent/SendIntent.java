@@ -1,7 +1,11 @@
 package de.mindlib.sendIntent;
 
+import android.content.ContentProvider;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.OpenableColumns;
+import android.widget.TextView;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -27,7 +31,7 @@ public class SendIntent extends Plugin {
                 Uri uri = intent.getClipData().getItemAt(0).getUri();
 
                 if(title == null && uri !=null)
-                    title = FilenameUtils.getName(uri.getPath());
+                    title = readFileName(uri);
 
                 ret.put("title", title);
                 ret.put("description", null);
@@ -43,6 +47,18 @@ public class SendIntent extends Plugin {
             }
         }
         call.reject("No processing needed");
+    }
+
+    public String readFileName(Uri uri){
+        Cursor returnCursor =
+                getContext().getContentResolver().query(uri, null, null, null, null);
+        /*
+         * Get the column indexes of the data in the Cursor,
+         * move to the first row in the Cursor, get the data,
+         * and display it.
+         */
+        returnCursor.moveToFirst();
+        return returnCursor.getString(returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
     }
 
 }
