@@ -118,98 +118,113 @@ import UIKit
 import Social
 import MobileCoreServices
 
-class ShareViewController: SLComposeServiceViewController {
+class ShareItem {
     
-    private var titleString: String?
-    private var typeString: String?
-    private var urlString: String?
+       public var title: String?
+       public var type: String?
+       public var url: String?
+}
+
+class ShareViewController: SLComposeServiceViewController {
+
+    private var shareItems: [ShareItem] = []
     
     override func isContentValid() -> Bool {
         // Do validation of contentText and/or NSExtensionContext attachments here
         print(contentText ?? "content is empty")
         return true
     }
-    
+
     override func didSelectPost() {
-        var urlString = "YOUR_APP_URL_SCHEME://?title=" + (self.titleString?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
-        urlString = urlString + "&description=" + (self.contentText?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
-        urlString = urlString + "&type=" + (self.typeString?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
-        urlString = urlString + "&url=" + (self.urlString?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
-        let url = URL(string: urlString)!
-        openURL(url)
+        let queryItems = shareItems.map { [URLQueryItem(name: "title", value: $0.title?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""), URLQueryItem(name: "description", value: self.contentText?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""), URLQueryItem(name: "type", value: $0.type?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""), URLQueryItem(name: "url", value: $0.url?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "")] }.flatMap({ $0 })
+        var urlComps = URLComponents(string: "YOUR_APP_URL_SCHEME://")!
+        urlComps.queryItems = queryItems
+        openURL(urlComps.url!)
         self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
     }
-    
+
     override func configurationItems() -> [Any]! {
         // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
         return []
     }
-    
-    fileprivate func setSharedFileUrl(_ url: URL?) {
+
+    fileprivate func createSharedFileUrl(_ url: URL?) -> String {
         let fileManager = FileManager.default
-        
+
         let copyFileUrl = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "YOUR_APP_GROUP_ID")!.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)! + "/" + url!.lastPathComponent.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
         try? Data(contentsOf: url!).write(to: URL(string: copyFileUrl)!)
-        
-        self.urlString = copyFileUrl
+
+        return copyFileUrl
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         let extensionItem = extensionContext?.inputItems[0] as! NSExtensionItem
         let contentTypeURL = kUTTypeURL as String
         let contentTypeText = kUTTypeText as String
         let contentTypeImage = kUTTypeImage as String
         let contentTypeMovie = kUTTypeMovie as String
-        
+
         for attachment in extensionItem.attachments as! [NSItemProvider] {
-            
+
             attachment.loadItem(forTypeIdentifier: contentTypeURL, options: nil, completionHandler: { [self] (results, error) in
                 if results != nil {
                     let url = results as! URL?
+                    let shareItem: ShareItem = ShareItem()
+                    
                     if url!.isFileURL {
-                        self.titleString = url!.lastPathComponent
-                        self.typeString = "application/" + url!.pathExtension
-                        setSharedFileUrl(url)
+                        shareItem.title = url!.lastPathComponent
+                        shareItem.type = "application/" + url!.pathExtension
+                        shareItem.url = createSharedFileUrl(url)
                     } else {
-                        self.titleString = url!.absoluteString
-                        self.urlString = url!.absoluteString
-                        self.typeString = "text/plain"
+                        shareItem.title = url!.absoluteString
+                        shareItem.url = url!.absoluteString
+                        shareItem.type = "text/plain"
                     }
                     
+                    self.shareItems.append(shareItem)
+
                 }
             })
-            
+
             attachment.loadItem(forTypeIdentifier: contentTypeText, options: nil, completionHandler: { (results, error) in
                 if results != nil {
+                    let shareItem: ShareItem = ShareItem()
                     let text = results as! String
-                    self.titleString = text
+                    shareItem.title = text
                     _ = self.isContentValid()
-                    self.typeString = "text/plain"
+                    shareItem.type = "text/plain"
+                    self.shareItems.append(shareItem)
                 }
             })
-            
+
             attachment.loadItem(forTypeIdentifier: contentTypeImage, options: nil, completionHandler: { [self] (results, error) in
                 if results != nil {
+                    let shareItem: ShareItem = ShareItem()
+                    
                     let url = results as! URL?
-                    self.titleString = url!.lastPathComponent
-                    self.typeString = "image/" + url!.pathExtension
-                    setSharedFileUrl(url)
+                    shareItem.title = url!.lastPathComponent
+                    shareItem.type = "image/" + url!.pathExtension
+                    shareItem.url = createSharedFileUrl(url)
+                    self.shareItems.append(shareItem)
                 }
             })
-            
+
             attachment.loadItem(forTypeIdentifier: contentTypeMovie, options: nil, completionHandler: { [self] (results, error) in
                 if results != nil {
+                    let shareItem: ShareItem = ShareItem()
+                    
                     let url = results as! URL?
-                    self.titleString = url!.lastPathComponent
-                    self.typeString = "video/" + url!.pathExtension
-                    setSharedFileUrl(url)
+                    shareItem.title = url!.lastPathComponent
+                    shareItem.type = "video/" + url!.pathExtension
+                    shareItem.url = createSharedFileUrl(url)
+                    self.shareItems.append(shareItem)
                 }
             })
         }
     }
-    
+
     @objc func openURL(_ url: URL) -> Bool {
         var responder: UIResponder? = self
         while responder != nil {
@@ -220,11 +235,9 @@ class ShareViewController: SLComposeServiceViewController {
         }
         return false
     }
-    
+
 }
 
-    
-}
 
 ```
 
