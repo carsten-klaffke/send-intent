@@ -3,6 +3,7 @@ export interface Intent {
   description?: string;
   type?: string;
   url?: string;
+  additionalItems?: any;
 }
 
 export interface SendIntentPlugin {
