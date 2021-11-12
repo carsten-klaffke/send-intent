@@ -52,7 +52,7 @@ public class SendIntent extends Plugin {
         ret.put("title", title);
         ret.put("description", null);
         ret.put("type", type);
-        ret.put("url", uri.toString());
+        ret.put("url", (uri!=null) ? uri.toString() : null);
         return ret;
     }
 
