@@ -107,6 +107,13 @@ Create a "Share Extension" ([Creating an App extension](https://developer.apple.
 Code for the ShareViewController:
 
 ```swift
+//
+//  ShareViewController.swift
+//  mindlib
+//
+//  Created by Carsten Klaffke on 05.07.20.
+//
+
 import UIKit
 import Social
 import MobileCoreServices
@@ -141,8 +148,7 @@ class ShareViewController: SLComposeServiceViewController {
     fileprivate func setSharedFileUrl(_ url: URL?) {
         let fileManager = FileManager.default
         
-        let copyFileUrl = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "YOUR_APP_GROUP_ID")!.absoluteString + "/" + url!.lastPathComponent
-        
+        let copyFileUrl = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "YOUR_APP_GROUP_ID")!.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)! + "/" + url!.lastPathComponent.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
         try? Data(contentsOf: url!).write(to: URL(string: copyFileUrl)!)
         
         self.urlString = copyFileUrl
@@ -155,6 +161,7 @@ class ShareViewController: SLComposeServiceViewController {
         let contentTypeURL = kUTTypeURL as String
         let contentTypeText = kUTTypeText as String
         let contentTypeImage = kUTTypeImage as String
+        let contentTypeMovie = kUTTypeMovie as String
         
         for attachment in extensionItem.attachments as! [NSItemProvider] {
             
@@ -192,6 +199,14 @@ class ShareViewController: SLComposeServiceViewController {
                 }
             })
             
+            attachment.loadItem(forTypeIdentifier: contentTypeMovie, options: nil, completionHandler: { [self] (results, error) in
+                if results != nil {
+                    let url = results as! URL?
+                    self.titleString = url!.lastPathComponent
+                    self.typeString = "video/" + url!.pathExtension
+                    setSharedFileUrl(url)
+                }
+            })
         }
     }
     
@@ -205,6 +220,9 @@ class ShareViewController: SLComposeServiceViewController {
         }
         return false
     }
+    
+}
+
     
 }
 
@@ -232,25 +250,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
             
-        var success = true
-        if CAPBridge.handleOpenUrl(url, options) {
-            success = ApplicationDelegateProxy.shared.application(app, open: url, options: options)
+            var success = true
+            if CAPBridge.handleOpenUrl(url, options) {
+                success = ApplicationDelegateProxy.shared.application(app, open: url, options: options)
+            }
+            
+            guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
+                  let params = components.queryItems else {
+                      return false
+                  }
+            let titles = params.filter { $0.name == "title" }
+            let descriptions = params.filter { $0.name == "description" }
+            let types = params.filter { $0.name == "type" }
+            let urls = params.filter { $0.name == "url" }
+            for index in 0...titles.count-1 {
+                var shareItem: JSObject = JSObject()
+                shareItem["title"] = titles[index].value!
+                shareItem["description"] = descriptions[index].value!
+                shareItem["type"] = types[index].value!
+                shareItem["url"] = urls[index].value!
+                store.shareItems.append(shareItem)
+            }
+            store.processed = false
+            let nc = NotificationCenter.default
+            nc.post(name: Notification.Name("triggerSendIntent"), object: nil )
+            
+            return success
         }
-        
-        guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
-              let params = components.queryItems else {
-                  return false
-              }
-        store.title = params.first(where: { $0.name == "title" })?.value as! String
-        store.description = params.first(where: { $0.name == "description" })?.value as! String
-        store.type = params.first(where: { $0.name == "type" })?.value as! String
-        store.url = params.first(where: { $0.name == "url" })?.value as! String
-        store.processed = false
-        let nc = NotificationCenter.default
-        nc.post(name: Notification.Name("triggerSendIntent"), object: nil )
-        
-        return success
-    }
 
     // ...
 
