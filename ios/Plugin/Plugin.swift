@@ -13,7 +13,7 @@ public class SendIntent: CAPPlugin {
     @objc func checkSendIntentReceived(_ call: CAPPluginCall) {
         if !store.processed {
             let firstItem: JSObject? = store.shareItems.first
-            let additionalItems: Array<JSObject> = store.shareItems.count > 1 ? Array(store.shareItems[..<1]) : []
+            let additionalItems: Array<JSObject> = store.shareItems.count > 1 ? Array(store.shareItems[1...]) : []
             
             call.resolve([
                 "title": firstItem?["title"] ?? "",
