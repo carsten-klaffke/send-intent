@@ -159,69 +159,73 @@ class ShareViewController: SLComposeServiceViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        shareItems.removeAll()
+        
         let extensionItem = extensionContext?.inputItems[0] as! NSExtensionItem
         let contentTypeURL = kUTTypeURL as String
         let contentTypeText = kUTTypeText as String
-        let contentTypeImage = kUTTypeImage as String
         let contentTypeMovie = kUTTypeMovie as String
-
+        let contentTypeImage = kUTTypeImage as String
+       
         for attachment in extensionItem.attachments as! [NSItemProvider] {
-
-            attachment.loadItem(forTypeIdentifier: contentTypeURL, options: nil, completionHandler: { [self] (results, error) in
-                if results != nil {
-                    let url = results as! URL?
-                    let shareItem: ShareItem = ShareItem()
-                    
-                    if url!.isFileURL {
-                        shareItem.title = url!.lastPathComponent
-                        shareItem.type = "application/" + url!.pathExtension
-                        shareItem.url = createSharedFileUrl(url)
-                    } else {
-                        shareItem.title = url!.absoluteString
-                        shareItem.url = url!.absoluteString
-                        shareItem.type = "text/plain"
+            
+            if attachment.hasItemConformingToTypeIdentifier(contentTypeURL) {
+                attachment.loadItem(forTypeIdentifier: contentTypeURL, options: nil, completionHandler: { [self] (results, error) in
+                    if results != nil {
+                        let url = results as! URL?
+                        let shareItem: ShareItem = ShareItem()
+                        
+                        if url!.isFileURL {
+                            shareItem.title = url!.lastPathComponent
+                            shareItem.type = "application/" + url!.pathExtension.lowercased()
+                            shareItem.url = createSharedFileUrl(url)
+                        } else {
+                            shareItem.title = url!.absoluteString
+                            shareItem.url = url!.absoluteString
+                            shareItem.type = "text/plain"
+                        }
+                        
+                        self.shareItems.append(shareItem)
+                        
                     }
-                    
-                    self.shareItems.append(shareItem)
-
-                }
-            })
-
-            attachment.loadItem(forTypeIdentifier: contentTypeText, options: nil, completionHandler: { (results, error) in
-                if results != nil {
-                    let shareItem: ShareItem = ShareItem()
-                    let text = results as! String
-                    shareItem.title = text
-                    _ = self.isContentValid()
-                    shareItem.type = "text/plain"
-                    self.shareItems.append(shareItem)
-                }
-            })
-
-            attachment.loadItem(forTypeIdentifier: contentTypeImage, options: nil, completionHandler: { [self] (results, error) in
-                if results != nil {
-                    let shareItem: ShareItem = ShareItem()
-                    
-                    let url = results as! URL?
-                    shareItem.title = url!.lastPathComponent
-                    shareItem.type = "image/" + url!.pathExtension
-                    shareItem.url = createSharedFileUrl(url)
-                    self.shareItems.append(shareItem)
-                }
-            })
-
-            attachment.loadItem(forTypeIdentifier: contentTypeMovie, options: nil, completionHandler: { [self] (results, error) in
-                if results != nil {
-                    let shareItem: ShareItem = ShareItem()
-                    
-                    let url = results as! URL?
-                    shareItem.title = url!.lastPathComponent
-                    shareItem.type = "video/" + url!.pathExtension
-                    shareItem.url = createSharedFileUrl(url)
-                    self.shareItems.append(shareItem)
-                }
-            })
+                })
+            } else if attachment.hasItemConformingToTypeIdentifier(contentTypeText) {
+                attachment.loadItem(forTypeIdentifier: contentTypeText, options: nil, completionHandler: { (results, error) in
+                    if results != nil {
+                        let shareItem: ShareItem = ShareItem()
+                        let text = results as! String
+                        shareItem.title = text
+                        _ = self.isContentValid()
+                        shareItem.type = "text/plain"
+                        self.shareItems.append(shareItem)
+                    }
+                })
+            } else if attachment.hasItemConformingToTypeIdentifier(contentTypeMovie) {
+                attachment.loadItem(forTypeIdentifier: contentTypeMovie, options: nil, completionHandler: { [self] (results, error) in
+                    if results != nil {
+                        let shareItem: ShareItem = ShareItem()
+                        
+                        let url = results as! URL?
+                        shareItem.title = url!.lastPathComponent
+                        shareItem.type = "video/" + url!.pathExtension
+                        shareItem.url = createSharedFileUrl(url)
+                        self.shareItems.append(shareItem)
+                    }
+                })
+            } else if attachment.hasItemConformingToTypeIdentifier(contentTypeImage) {
+                attachment.loadItem(forTypeIdentifier: contentTypeImage, options: nil, completionHandler: { [self] (results, error) in
+                    if results != nil {
+                        let shareItem: ShareItem = ShareItem()
+                        
+                        let url = results as! URL?
+                        shareItem.title = url!.lastPathComponent
+                        shareItem.type = "image/" + url!.pathExtension
+                        shareItem.url = createSharedFileUrl(url)
+                        self.shareItems.append(shareItem)
+                    }
+                })
+            }
         }
     }
 
@@ -276,14 +280,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let descriptions = params.filter { $0.name == "description" }
             let types = params.filter { $0.name == "type" }
             let urls = params.filter { $0.name == "url" }
-            for index in 0...titles.count-1 {
-                var shareItem: JSObject = JSObject()
-                shareItem["title"] = titles[index].value!
-                shareItem["description"] = descriptions[index].value!
-                shareItem["type"] = types[index].value!
-                shareItem["url"] = urls[index].value!
-                store.shareItems.append(shareItem)
+            
+            store.shareItems.removeAll()
+        
+            if(titles.count > 0){
+                for index in 0...titles.count-1 {
+                    var shareItem: JSObject = JSObject()
+                    shareItem["title"] = titles[index].value!
+                    shareItem["description"] = descriptions[index].value!
+                    shareItem["type"] = types[index].value!
+                    shareItem["url"] = urls[index].value!
+                    store.shareItems.append(shareItem)
+                }
             }
+            
             store.processed = false
             let nc = NotificationCenter.default
             nc.post(name: Notification.Name("triggerSendIntent"), object: nil )
