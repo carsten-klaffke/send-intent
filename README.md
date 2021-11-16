@@ -208,7 +208,7 @@ class ShareViewController: SLComposeServiceViewController {
                         
                         let url = results as! URL?
                         shareItem.title = url!.lastPathComponent
-                        shareItem.type = "video/" + url!.pathExtension
+                        shareItem.type = "video/" + url!.pathExtension.lowercased()
                         shareItem.url = createSharedFileUrl(url)
                         self.shareItems.append(shareItem)
                     }
@@ -220,7 +220,7 @@ class ShareViewController: SLComposeServiceViewController {
                         
                         let url = results as! URL?
                         shareItem.title = url!.lastPathComponent
-                        shareItem.type = "image/" + url!.pathExtension
+                        shareItem.type = "image/" + url!.pathExtension.lowercased()
                         shareItem.url = createSharedFileUrl(url)
                         self.shareItems.append(shareItem)
                     }
