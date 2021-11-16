@@ -104,6 +104,30 @@ Using SendIntent as a listener can be useful if the intent doesn't trigger a rer
 
 Create a "Share Extension" ([Creating an App extension](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionCreation.html#//apple_ref/doc/uid/TP40014214-CH5-SW1))
 
+Set the activation rules in the extensions Info.plist, so that your app will be displayed as share option.
+
+```
+...
+    <key>NSExtensionActivationRule</key>
+    <dict>
+        <key>NSExtensionActivationSupportsFileWithMaxCount</key>
+        <integer>5</integer>
+        <key>NSExtensionActivationSupportsImageWithMaxCount</key>
+        <integer>5</integer>
+        <key>NSExtensionActivationSupportsMovieWithMaxCount</key>
+        <integer>5</integer>
+        <key>NSExtensionActivationSupportsText</key>
+        <true/>
+        <key>NSExtensionActivationSupportsWebPageWithMaxCount</key>
+        <integer>1</integer>
+        <key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
+        <integer>1</integer>
+        <key>NSExtensionActivationUsesStrictMatching</key>
+        <false/>
+    </dict>
+...            
+```
+
 Code for the ShareViewController:
 
 ```swift
