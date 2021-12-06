@@ -1,5 +1,6 @@
 package de.mindlib.sendIntent;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -12,6 +13,13 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,8 +51,15 @@ public class SendIntent extends Plugin {
 
     private JSObject readItemAt(Intent intent, String type, int index) {
         JSObject ret = new JSObject();
-        String title = intent.getStringExtra(Intent.EXTRA_TEXT);
+        String title = intent.getStringExtra(Intent.EXTRA_SUBJECT);
         Uri uri = intent.getClipData().getItemAt(index).getUri();
+
+        String url;
+        if (uri != null) {
+            url = copyfile(uri);
+        } else {
+            url = intent.getStringExtra(Intent.EXTRA_TEXT);
+        }
 
         if (title == null && uri != null)
             title = readFileName(uri);
@@ -52,7 +67,7 @@ public class SendIntent extends Plugin {
         ret.put("title", title);
         ret.put("description", null);
         ret.put("type", type);
-        ret.put("url", (uri!=null) ? uri.toString() : null);
+        ret.put("url", url);
         return ret;
     }
 
@@ -66,6 +81,22 @@ public class SendIntent extends Plugin {
          */
         returnCursor.moveToFirst();
         return returnCursor.getString(returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+    }
+
+    String copyfile(Uri uri) {
+        final String fileName = readFileName(uri);
+        File file = new File(getContext().getFilesDir(), fileName);
+
+        try (FileOutputStream outputStream = getContext().openFileOutput(fileName, Context.MODE_PRIVATE);
+             InputStream inputStream = getContext().getContentResolver().openInputStream(uri)) {
+            IOUtils.copy(inputStream, outputStream);
+            return file.getAbsolutePath();
+        } catch (FileNotFoundException fileNotFoundException) {
+            fileNotFoundException.printStackTrace();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+        return null;
     }
 
 }
