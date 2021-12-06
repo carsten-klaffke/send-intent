@@ -104,6 +104,30 @@ Using SendIntent as a listener can be useful if the intent doesn't trigger a rer
 
 Create a "Share Extension" ([Creating an App extension](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionCreation.html#//apple_ref/doc/uid/TP40014214-CH5-SW1))
 
+Set the activation rules in the extensions Info.plist, so that your app will be displayed as share option.
+
+```
+...
+    <key>NSExtensionActivationRule</key>
+    <dict>
+        <key>NSExtensionActivationSupportsFileWithMaxCount</key>
+        <integer>5</integer>
+        <key>NSExtensionActivationSupportsImageWithMaxCount</key>
+        <integer>5</integer>
+        <key>NSExtensionActivationSupportsMovieWithMaxCount</key>
+        <integer>5</integer>
+        <key>NSExtensionActivationSupportsText</key>
+        <true/>
+        <key>NSExtensionActivationSupportsWebPageWithMaxCount</key>
+        <integer>1</integer>
+        <key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
+        <integer>1</integer>
+        <key>NSExtensionActivationUsesStrictMatching</key>
+        <false/>
+    </dict>
+...            
+```
+
 Code for the ShareViewController:
 
 ```swift
@@ -118,98 +142,117 @@ import UIKit
 import Social
 import MobileCoreServices
 
-class ShareViewController: SLComposeServiceViewController {
+class ShareItem {
     
-    private var titleString: String?
-    private var typeString: String?
-    private var urlString: String?
+       public var title: String?
+       public var type: String?
+       public var url: String?
+}
+
+class ShareViewController: SLComposeServiceViewController {
+
+    private var shareItems: [ShareItem] = []
     
     override func isContentValid() -> Bool {
         // Do validation of contentText and/or NSExtensionContext attachments here
         print(contentText ?? "content is empty")
         return true
     }
-    
+
     override func didSelectPost() {
-        var urlString = "YOUR_APP_URL_SCHEME://?title=" + (self.titleString?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
-        urlString = urlString + "&description=" + (self.contentText?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
-        urlString = urlString + "&type=" + (self.typeString?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
-        urlString = urlString + "&url=" + (self.urlString?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "");
-        let url = URL(string: urlString)!
-        openURL(url)
+        let queryItems = shareItems.map { [URLQueryItem(name: "title", value: $0.title?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""), URLQueryItem(name: "description", value: self.contentText?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""), URLQueryItem(name: "type", value: $0.type?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""), URLQueryItem(name: "url", value: $0.url?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "")] }.flatMap({ $0 })
+        var urlComps = URLComponents(string: "YOUR_APP_URL_SCHEME://")!
+        urlComps.queryItems = queryItems
+        openURL(urlComps.url!)
         self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
     }
-    
+
     override func configurationItems() -> [Any]! {
         // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
         return []
     }
-    
-    fileprivate func setSharedFileUrl(_ url: URL?) {
+
+    fileprivate func createSharedFileUrl(_ url: URL?) -> String {
         let fileManager = FileManager.default
-        
+
         let copyFileUrl = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "YOUR_APP_GROUP_ID")!.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)! + "/" + url!.lastPathComponent.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
         try? Data(contentsOf: url!).write(to: URL(string: copyFileUrl)!)
-        
-        self.urlString = copyFileUrl
+
+        return copyFileUrl
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        shareItems.removeAll()
         
         let extensionItem = extensionContext?.inputItems[0] as! NSExtensionItem
         let contentTypeURL = kUTTypeURL as String
         let contentTypeText = kUTTypeText as String
-        let contentTypeImage = kUTTypeImage as String
         let contentTypeMovie = kUTTypeMovie as String
-        
+        let contentTypeImage = kUTTypeImage as String
+       
         for attachment in extensionItem.attachments as! [NSItemProvider] {
             
-            attachment.loadItem(forTypeIdentifier: contentTypeURL, options: nil, completionHandler: { [self] (results, error) in
-                if results != nil {
-                    let url = results as! URL?
-                    if url!.isFileURL {
-                        self.titleString = url!.lastPathComponent
-                        self.typeString = "application/" + url!.pathExtension
-                        setSharedFileUrl(url)
-                    } else {
-                        self.titleString = url!.absoluteString
-                        self.urlString = url!.absoluteString
-                        self.typeString = "text/plain"
+            if attachment.hasItemConformingToTypeIdentifier(contentTypeURL) {
+                attachment.loadItem(forTypeIdentifier: contentTypeURL, options: nil, completionHandler: { [self] (results, error) in
+                    if results != nil {
+                        let url = results as! URL?
+                        let shareItem: ShareItem = ShareItem()
+                        
+                        if url!.isFileURL {
+                            shareItem.title = url!.lastPathComponent
+                            shareItem.type = "application/" + url!.pathExtension.lowercased()
+                            shareItem.url = createSharedFileUrl(url)
+                        } else {
+                            shareItem.title = url!.absoluteString
+                            shareItem.url = url!.absoluteString
+                            shareItem.type = "text/plain"
+                        }
+                        
+                        self.shareItems.append(shareItem)
+                        
                     }
-                    
-                }
-            })
-            
-            attachment.loadItem(forTypeIdentifier: contentTypeText, options: nil, completionHandler: { (results, error) in
-                if results != nil {
-                    let text = results as! String
-                    self.titleString = text
-                    _ = self.isContentValid()
-                    self.typeString = "text/plain"
-                }
-            })
-            
-            attachment.loadItem(forTypeIdentifier: contentTypeImage, options: nil, completionHandler: { [self] (results, error) in
-                if results != nil {
-                    let url = results as! URL?
-                    self.titleString = url!.lastPathComponent
-                    self.typeString = "image/" + url!.pathExtension
-                    setSharedFileUrl(url)
-                }
-            })
-            
-            attachment.loadItem(forTypeIdentifier: contentTypeMovie, options: nil, completionHandler: { [self] (results, error) in
-                if results != nil {
-                    let url = results as! URL?
-                    self.titleString = url!.lastPathComponent
-                    self.typeString = "video/" + url!.pathExtension
-                    setSharedFileUrl(url)
-                }
-            })
+                })
+            } else if attachment.hasItemConformingToTypeIdentifier(contentTypeText) {
+                attachment.loadItem(forTypeIdentifier: contentTypeText, options: nil, completionHandler: { (results, error) in
+                    if results != nil {
+                        let shareItem: ShareItem = ShareItem()
+                        let text = results as! String
+                        shareItem.title = text
+                        _ = self.isContentValid()
+                        shareItem.type = "text/plain"
+                        self.shareItems.append(shareItem)
+                    }
+                })
+            } else if attachment.hasItemConformingToTypeIdentifier(contentTypeMovie) {
+                attachment.loadItem(forTypeIdentifier: contentTypeMovie, options: nil, completionHandler: { [self] (results, error) in
+                    if results != nil {
+                        let shareItem: ShareItem = ShareItem()
+                        
+                        let url = results as! URL?
+                        shareItem.title = url!.lastPathComponent
+                        shareItem.type = "video/" + url!.pathExtension.lowercased()
+                        shareItem.url = createSharedFileUrl(url)
+                        self.shareItems.append(shareItem)
+                    }
+                })
+            } else if attachment.hasItemConformingToTypeIdentifier(contentTypeImage) {
+                attachment.loadItem(forTypeIdentifier: contentTypeImage, options: nil, completionHandler: { [self] (results, error) in
+                    if results != nil {
+                        let shareItem: ShareItem = ShareItem()
+                        
+                        let url = results as! URL?
+                        shareItem.title = url!.lastPathComponent
+                        shareItem.type = "image/" + url!.pathExtension.lowercased()
+                        shareItem.url = createSharedFileUrl(url)
+                        self.shareItems.append(shareItem)
+                    }
+                })
+            }
         }
     }
-    
+
     @objc func openURL(_ url: URL) -> Bool {
         var responder: UIResponder? = self
         while responder != nil {
@@ -220,11 +263,9 @@ class ShareViewController: SLComposeServiceViewController {
         }
         return false
     }
-    
+
 }
 
-    
-}
 
 ```
 
@@ -263,14 +304,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let descriptions = params.filter { $0.name == "description" }
             let types = params.filter { $0.name == "type" }
             let urls = params.filter { $0.name == "url" }
-            for index in 0...titles.count-1 {
-                var shareItem: JSObject = JSObject()
-                shareItem["title"] = titles[index].value!
-                shareItem["description"] = descriptions[index].value!
-                shareItem["type"] = types[index].value!
-                shareItem["url"] = urls[index].value!
-                store.shareItems.append(shareItem)
+            
+            store.shareItems.removeAll()
+        
+            if(titles.count > 0){
+                for index in 0...titles.count-1 {
+                    var shareItem: JSObject = JSObject()
+                    shareItem["title"] = titles[index].value!
+                    shareItem["description"] = descriptions[index].value!
+                    shareItem["type"] = types[index].value!
+                    shareItem["url"] = urls[index].value!
+                    store.shareItems.append(shareItem)
+                }
             }
+            
             store.processed = false
             let nc = NotificationCenter.default
             nc.post(name: Notification.Name("triggerSendIntent"), object: nil )
