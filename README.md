@@ -346,4 +346,8 @@ window.addEventListener("sendIntentReceived", () => {
 
 ## Donation
 
-If you want to support my work, you can donate me on bitcoin:bc1q60ntnlz4wqfup3yg3hyqmzfkuraf8clmvupqvs
+If you want to support my work, you can donate me on bitcoin or stripe.
+
+bitcoin:bc1q60ntnlz4wqfup3yg3hyqmzfkuraf8clmvupqvs
+
+https://buy.stripe.com/3cs9EHftae771tm144
