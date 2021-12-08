@@ -56,7 +56,8 @@ public class SendIntent extends Plugin {
 
         String url;
         if (uri != null) {
-            url = copyfile(uri);
+            final Uri copyfileUri = copyfile(uri);
+            url = (copyfileUri != null) ? copyfileUri.toString() : null;
         } else {
             url = intent.getStringExtra(Intent.EXTRA_TEXT);
         }
@@ -83,14 +84,14 @@ public class SendIntent extends Plugin {
         return returnCursor.getString(returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
     }
 
-    String copyfile(Uri uri) {
+    Uri copyfile(Uri uri) {
         final String fileName = readFileName(uri);
         File file = new File(getContext().getFilesDir(), fileName);
 
         try (FileOutputStream outputStream = getContext().openFileOutput(fileName, Context.MODE_PRIVATE);
              InputStream inputStream = getContext().getContentResolver().openInputStream(uri)) {
             IOUtils.copy(inputStream, outputStream);
-            return file.getAbsolutePath();
+            return Uri.fromFile(file);
         } catch (FileNotFoundException fileNotFoundException) {
             fileNotFoundException.printStackTrace();
         } catch (IOException ioException) {

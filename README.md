@@ -75,7 +75,7 @@ protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
     String action = intent.getAction();
     String type = intent.getType();
-    if (Intent.ACTION_SEND.equals(action) && type != null) {
+    if ((Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) && type != null) {
         bridge.getActivity().setIntent(intent);
         bridge.eval("window.dispatchEvent(new Event('sendIntentReceived'))", new ValueCallback<String>() {
             @Override
