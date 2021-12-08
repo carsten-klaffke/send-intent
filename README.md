@@ -350,4 +350,4 @@ If you want to support my work, you can donate me on bitcoin or stripe.
 
 bitcoin:bc1q60ntnlz4wqfup3yg3hyqmzfkuraf8clmvupqvs
 
-https://buy.stripe.com/3cs9EHftae771tm144
+https://buy.stripe.com/4gwaIL0yg3stfkc145
