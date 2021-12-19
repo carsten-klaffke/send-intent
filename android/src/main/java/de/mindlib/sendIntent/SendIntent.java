@@ -54,12 +54,16 @@ public class SendIntent extends Plugin {
         String title = intent.getStringExtra(Intent.EXTRA_SUBJECT);
         Uri uri = intent.getClipData().getItemAt(index).getUri();
 
-        String url;
-        if (uri != null) {
+        String url = null;
+
+        //Handling web links as url
+        if ("text/plain".equals(type) && intent.getStringExtra(Intent.EXTRA_TEXT) != null) {
+            url = intent.getStringExtra(Intent.EXTRA_TEXT);
+        }
+        //Handling files as url
+        else if (uri != null) {
             final Uri copyfileUri = copyfile(uri);
             url = (copyfileUri != null) ? copyfileUri.toString() : null;
-        } else {
-            url = intent.getStringExtra(Intent.EXTRA_TEXT);
         }
 
         if (title == null && uri != null)
