@@ -181,7 +181,20 @@ class ShareViewController: SLComposeServiceViewController {
         return copyFileUrl
     }
 
-    override func viewDidLoad() {
+    func saveScreenshot(_ image: UIImage) -> String {
+        let fileManager = FileManager.default
+
+        let copyFileUrl = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "YOUR_APP_GROUP_ID")!.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)! + "/screenshot.png"
+        do {
+            try image.pngData()?.write(to: URL(string: copyFileUrl)!)
+            return copyFileUrl
+        } catch {
+            print(error.localizedDescription)
+            return ""
+        }
+    }
+
+    override public func viewDidLoad() {
         super.viewDidLoad()
         
         shareItems.removeAll()
@@ -220,7 +233,6 @@ class ShareViewController: SLComposeServiceViewController {
                         let shareItem: ShareItem = ShareItem()
                         let text = results as! String
                         shareItem.title = text
-                        _ = self.isContentValid()
                         shareItem.type = "text/plain"
                         self.shareItems.append(shareItem)
                     }
@@ -238,20 +250,29 @@ class ShareViewController: SLComposeServiceViewController {
                     }
                 })
             } else if attachment.hasItemConformingToTypeIdentifier(contentTypeImage) {
-                attachment.loadItem(forTypeIdentifier: contentTypeImage, options: nil, completionHandler: { [self] (results, error) in
-                    if results != nil {
-                        let shareItem: ShareItem = ShareItem()
-                        
-                        let url = results as! URL?
-                        shareItem.title = url!.lastPathComponent
-                        shareItem.type = "image/" + url!.pathExtension.lowercased()
-                        shareItem.url = createSharedFileUrl(url)
-                        self.shareItems.append(shareItem)
+                attachment.loadItem(forTypeIdentifier: contentTypeImage, options: nil) { data, error in
+                        switch data {
+                            case let image as UIImage:
+                                let shareItem: ShareItem = ShareItem()
+                                shareItem.title = "screenshot"
+                                shareItem.type = "image/png"
+                                shareItem.url = self.saveScreenshot(image)
+                                self.shareItems.append(shareItem)
+                            case let url as URL:
+                                let shareItem: ShareItem = ShareItem()
+                                shareItem.title = url.lastPathComponent
+                                shareItem.type = "image/" + url.pathExtension.lowercased()
+                                shareItem.url = self.createSharedFileUrl(url)
+                                self.shareItems.append(shareItem)
+                            default:
+                                print("Unexpected image data:", type(of: data))
+                            }
                     }
-                })
+            
             }
         }
     }
+    
 
     @objc func openURL(_ url: URL) -> Bool {
         var responder: UIResponder? = self
