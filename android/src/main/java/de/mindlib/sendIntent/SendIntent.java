@@ -52,7 +52,10 @@ public class SendIntent extends Plugin {
     private JSObject readItemAt(Intent intent, String type, int index) {
         JSObject ret = new JSObject();
         String title = intent.getStringExtra(Intent.EXTRA_SUBJECT);
-        Uri uri = intent.getClipData().getItemAt(index).getUri();
+        Uri uri = null;
+
+        if (intent.getClipData() != null && intent.getClipData().getItemAt(index) != null)
+            uri = intent.getClipData().getItemAt(index).getUri();
 
         String url = null;
 
