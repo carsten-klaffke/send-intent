@@ -28,6 +28,10 @@ public class SendIntent: CAPPlugin {
         }
     }
 
+    @objc func finish(_ call: CAPPluginCall) {
+        call.resolve();
+    }
+
     public override func load() {
         let nc = NotificationCenter.default
         nc.addObserver(self, selector: #selector(eval), name: Notification.Name("triggerSendIntent"), object: nil)

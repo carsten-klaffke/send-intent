@@ -48,57 +48,29 @@ Configure AndroidManifest.xml
 
 ```xml
 <activity
-    android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale"
-    android:name="io.ionic.starter.MainActivity"
-    android:label="@string/title_activity_main"
-    android:theme="@style/AppTheme.NoActionBarLaunch"
-    android:launchMode="singleTask">
-
+        android:name=".sendIntent.SendIntentActivity"
+        android:label="@string/app_name"
+        android:exported="true"
+        android:theme="@style/AppTheme.NoActionBar">
     <intent-filter>
-          <action android:name="android.intent.action.SEND" />
-
-          <category android:name="android.intent.category.DEFAULT" />
-          <category android:name="android.intent.category.BROWSABLE" />
-
-          <data android:mimeType="text/plain" />
-          <data android:mimeType="image/*" />
-          <data android:mimeType="application/octet-stream" />
+        <action android:name="android.intent.action.SEND" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <data android:mimeType="text/plain" />
+        <data android:mimeType="image/*" />
+        <data android:mimeType="application/*" />
+        <data android:mimeType="video/*" />
     </intent-filter>
 </activity>
+
 ```
 
-If you want to use checkIntent as a listener, you need to add the following code to your MainActivity:
-
-```java
-@Override
-protected void onNewIntent(Intent intent) {
-    super.onNewIntent(intent);
-    String action = intent.getAction();
-    String type = intent.getType();
-    if ((Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) && type != null) {
-        bridge.getActivity().setIntent(intent);
-        bridge.eval("window.dispatchEvent(new Event('sendIntentReceived'))", new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String s) {
-            }
-        });
-    }
-}
-```
-
-And then add the listener to your client:
+On Android, I strongly recommend closing the send-intent-activity after you have processed the send-intent in your app. Not doing 
+this can lead to app state issues (because you have two instances running) or trigger the same intent again if your app 
+reloads from idle mode. You can close the send-intent-activity by calling the "finish"-method:
 
 ```js
-window.addEventListener("sendIntentReceived", () => {
-   Plugins.SendIntent.checkSendIntentReceived().then((result: any) => {
-        if (result) {
-            // ...
-        }
-    });
-})
+SendIntent.finish();
 ```
-
-Using SendIntent as a listener can be useful if the intent doesn't trigger a rerender of your app.
 
 ## **iOS**
 
