@@ -125,6 +125,11 @@ class ShareViewController: UIViewController {
     
     private var shareItems: [ShareItem] = []
     
+    override public func viewDidAppear(_ animated: Bool) {
+       super.viewDidAppear(animated)
+       self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
+    }
+    
     private func sendData() {
         let queryItems = shareItems.map {
             [
@@ -143,7 +148,6 @@ class ShareViewController: UIViewController {
         var urlComps = URLComponents(string: "YOUR_APP_URL_SCHEME://")!
         urlComps.queryItems = queryItems
         openURL(urlComps.url!)
-        self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
     }
     
     fileprivate func createSharedFileUrl(_ url: URL?) -> String {
