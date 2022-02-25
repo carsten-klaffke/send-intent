@@ -48,7 +48,7 @@ Configure AndroidManifest.xml
 
 ```xml
 <activity
-        android:name=".sendIntent.SendIntentActivity"
+        android:name="de.mindlib.sendIntent.SendIntentActivity"
         android:label="@string/app_name"
         android:exported="true"
         android:theme="@style/AppTheme.NoActionBar">
