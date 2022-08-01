@@ -362,7 +362,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 This is the function started when an application is open by URL.
 
-Also, make sure you use SendIntent as a listener. Otherwise you will miss the event fired in the plugin:
+Make sure to register the following event-listener. Otherwise you will miss the event fired in the plugin:
 
 ```js
 window.addEventListener("sendIntentReceived", () => {
@@ -373,6 +373,8 @@ window.addEventListener("sendIntentReceived", () => {
     });
 })
 ```
+
+You should also exceute a call on app startup as described in [Usage](#usage), because on a cold start the event-listener might not be registered early enough (see [https://github.com/carsten-klaffke/send-intent/issues/57]).
 
 ## Donation
 
