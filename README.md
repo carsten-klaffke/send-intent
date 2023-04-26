@@ -44,7 +44,7 @@ SendIntent.checkSendIntentReceived().then((result: any) => {
 
 ## **Android**
 
-Configure AndroidManifest.xml
+Configure a new activity in AndroidManifest.xml!
 
 ```xml
 <activity
