@@ -1,6 +1,6 @@
 {
   "name": "send-intent",
-  "version": "3.0.11",
+  "version": "3.0.12",
   "description": "Plugin for Capacitor to receive send intents in Ionic",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -14,7 +14,6 @@
   "author": "Carsten Klaffke",
   "license": "MIT",
   "dependencies": {
-    "-": "0.0.1",
     "@capacitor/cli": ">= 3 < 4",
     "@capacitor/core": ">= 3 < 4"
   },

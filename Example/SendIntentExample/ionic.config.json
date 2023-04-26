@@ -1,7 +1,0 @@
-{
-  "name": "SendIntentExample",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "react"
-}
