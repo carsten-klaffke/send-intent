@@ -4,13 +4,14 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.2'
+        classpath 'com.android.tools.build:gradle:8.0.0'
     }
 }
 
 apply plugin: 'com.android.library'
 
 android {
+    namespace "de.mindlib.sendIntent.sendintent"
     compileSdkVersion 31
     defaultConfig {
         minSdkVersion 21
