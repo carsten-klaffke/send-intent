@@ -6,7 +6,7 @@ Check out my app [mindlib - your personal mind library](https://play.google.com/
 
 ## Projects below Capacitor 3
 
-For projects below Capacitor 3 please use  "send-intent": "1.1.7".
+For projects below Capacitor 3 please use "send-intent": "1.1.7"!
 
 ## Installation
 
@@ -21,7 +21,7 @@ Import & Sample call
 
 Shared files will be received as URI-String. You can use Capacitor's [Filesystem](https://capacitorjs.com/docs/apis/filesystem) plugin to get the files content. 
 The "url"-property of the SendIntent result is also used for web urls, e.g. when sharing a website via browser, so it is not necessarily a file path. Make sure to handle this
-either through checking the "type"-property or by error handling.
+either through checking the "type"-property or by error handling!
 
 ```js
 import {SendIntent} from "send-intent";
@@ -74,9 +74,9 @@ SendIntent.finish();
 
 ## **iOS**
 
-Create a "Share Extension" ([Creating an App extension](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionCreation.html#//apple_ref/doc/uid/TP40014214-CH5-SW1))
+Create a "Share Extension" ([Creating an App extension](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionCreation.html#//apple_ref/doc/uid/TP40014214-CH5-SW1)) and make sure that the extensions "iOS deployment target" version is in sync with your apps deployment target version! 
 
-Set the activation rules in the extensions Info.plist, so that your app will be displayed as share option.
+Set the activation rules in the extensions Info.plist, so that your app will be displayed as share option!
 
 ```
 ...
@@ -299,7 +299,7 @@ class ShareViewController: UIViewController {
 
 ```
 
-The share extension is like a little standalone program, so to get to your app the extension has to make an openURL call. In order to make your app reachable by a URL, you have to define a URL scheme ([Register Your URL Scheme](https://developer.apple.com/documentation/uikit/inter-process_communication/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app)). The code above calls a URL scheme named "YOUR_APP_URL_SCHEME" (first line in "didSelectPost"), so just replace this with your scheme.
+The share extension is like a little standalone program, so to get to your app the extension has to make an openURL call. In order to make your app reachable by a URL, you have to define a URL scheme ([Register Your URL Scheme](https://developer.apple.com/documentation/uikit/inter-process_communication/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app)). The code above calls a URL scheme named "YOUR_APP_URL_SCHEME" (first line in "didSelectPost"), so just replace this with your scheme!
 To allow sharing of files between the extension and your main app, you need to [create an app group](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_application-groups) which is checked for both your extension and main app. Replace "YOUR_APP_GROUP_ID" in "setSharedFileUrl()" with your app groups name.
 
 Finally, in your AppDelegate.swift, override the following function like this:
@@ -362,7 +362,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 This is the function started when an application is open by URL.
 
-Make sure to register the following event-listener. Otherwise you will miss the event fired in the plugin:
+Make sure to register the following event-listener! Otherwise you will miss the event fired in the plugin:
 
 ```js
 window.addEventListener("sendIntentReceived", () => {
@@ -383,3 +383,9 @@ If you want to support my work, you can donate me on Bitcoin or Stripe.
 bitcoin:bc1q60ntnlz4wqfup3yg3hyqmzfkuraf8clmvupqvs
 
 [Donate me a coffee on Stripe](https://buy.stripe.com/5kA9EH5SAe778VO146)
+
+## Consulting
+
+I work as a freelance IT Consultant. If you need help with this plugin or want me to do the complete setup in your App, you can contact me at [mail@carsten-klaffke.de].
+
+
