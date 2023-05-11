@@ -386,6 +386,6 @@ bitcoin:bc1q60ntnlz4wqfup3yg3hyqmzfkuraf8clmvupqvs
 
 ## Consulting
 
-I work as a freelance IT Consultant. If you need help with this plugin or want me to do the complete setup in your App, you can contact me at [mail@carsten-klaffke.de].
+I work as a freelance IT Consultant. If you need help with this plugin or want me to do the complete setup in your App, you can contact me at mail@carsten-klaffke.de.
 
 
