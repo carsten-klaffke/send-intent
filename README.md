@@ -72,6 +72,8 @@ reloads from idle mode. You can close the send-intent-activity by calling the "f
 SendIntent.finish();
 ```
 
+However, if you want to stay in your app after the send-intent, there is a solution using Deep Links which was worked out here: https://github.com/carsten-klaffke/send-intent/issues/69#issuecomment-1544619608
+
 ## **iOS**
 
 Create a "Share Extension" ([Creating an App extension](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionCreation.html#//apple_ref/doc/uid/TP40014214-CH5-SW1)) and make sure that the extensions "iOS deployment target" version is in sync with your apps deployment target version! 
