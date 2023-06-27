@@ -162,13 +162,13 @@ class ShareViewController: UIViewController {
         return copyFileUrl
     }
     
-    func saveScreenshot(_ image: UIImage) -> String {
+    func saveScreenshot(_ image: UIImage, _ index: Int) -> String {
         let fileManager = FileManager.default
         
         let copyFileUrl =
-        fileManager.containerURL(forSecurityApplicationGroupIdentifier: "YOUR_APP_GROUP_ID")!
+        fileManager.containerURL(forSecurityApplicationGroupIdentifier: "group.SendIntentExample")!
             .absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-        + "/screenshot.png"
+        + "/screenshot_\(index).png"
         do {
             try image.pngData()?.write(to: URL(string: copyFileUrl)!)
             return copyFileUrl
@@ -222,23 +222,23 @@ class ShareViewController: UIViewController {
         return shareItem
     }
     
-    fileprivate func handleTypeImage(_ attachment: NSItemProvider)
+    fileprivate func handleTypeImage(_ attachment: NSItemProvider, _ index: Int)
     async throws -> ShareItem
     {
         let data = try await attachment.loadItem(forTypeIdentifier: kUTTypeImage as String, options: nil)
         
         let shareItem: ShareItem = ShareItem()
-        switch data {
-        case let image as UIImage:
-            shareItem.title = "screenshot"
-            shareItem.type = "image/png"
-            shareItem.url = self.saveScreenshot(image)
-        case let url as URL:
-            shareItem.title = url.lastPathComponent
-            shareItem.type = "image/" + url.pathExtension.lowercased()
-            shareItem.url = self.createSharedFileUrl(url)
-        default:
-            print("Unexpected image data:", type(of: data))
+            switch data {
+                case let image as UIImage:
+                    shareItem.title = "screenshot_\(index)"
+                    shareItem.type = "image/png"
+                    shareItem.url = self.saveScreenshot(image, index)
+                case let url as URL:
+                    shareItem.title = url.lastPathComponent
+                    shareItem.type = "image/" + url.pathExtension.lowercased()
+                    shareItem.url = self.createSharedFileUrl(url)
+                default:
+                    print("Unexpected image data:", type(of: data))
         }
         return shareItem
     }
@@ -254,7 +254,7 @@ class ShareViewController: UIViewController {
                 of: ShareItem.self,
                 body: { taskGroup in
                     
-                    for attachment in extensionItem.attachments! {
+                    for (index, attachment) in extensionItem.attachments!.enumerated() {
                         if attachment.hasItemConformingToTypeIdentifier(kUTTypeURL as String) {
                             taskGroup.addTask {
                                 return try await self.handleTypeUrl(attachment)
@@ -269,7 +269,7 @@ class ShareViewController: UIViewController {
                             }
                         } else if attachment.hasItemConformingToTypeIdentifier(kUTTypeImage as String) {
                             taskGroup.addTask {
-                                return try await self.handleTypeImage(attachment)
+                                return try await self.handleTypeImage(attachment, index)
                             }
                         }
                     }
