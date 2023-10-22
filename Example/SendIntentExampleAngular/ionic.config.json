@@ -1,0 +1,7 @@
+{
+  "name": "SendIntentExampleAngular",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
