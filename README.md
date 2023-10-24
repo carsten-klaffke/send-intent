@@ -47,14 +47,25 @@ SendIntent.checkSendIntentReceived().then((result: any) => {
 Configure a new activity in AndroidManifest.xml!
 
 ```xml
+<!-- Your actual activity declaration -->
 <activity
-        android:name="de.mindlib.sendIntent.SendIntentActivity"
+      android:name=".MainActivity"
+    ...
+    ...
+    ...>
+</activity>
+
+<!-- Add new One Activity for handle Intent here -->
+<activity
+        android:name="de.mindlib.sendIntent.SendIntentActivity" <!-- Do not change this name, otherwise your application will crash -->
         android:label="@string/app_name"
         android:exported="true"
         android:theme="@style/AppTheme.NoActionBar">
     <intent-filter>
         <action android:name="android.intent.action.SEND" />
         <category android:name="android.intent.category.DEFAULT" />
+
+        <!-- Depending on your project, you can add here the type of data you wish to receive -->
         <data android:mimeType="text/plain" />
         <data android:mimeType="image/*" />
         <data android:mimeType="application/*" />
