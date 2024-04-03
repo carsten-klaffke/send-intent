@@ -391,9 +391,9 @@ You should also exceute a call on app startup as described in [Usage](#usage), b
 
 ## Donation
 
-If you want to support my work, you can donate me on Bitcoin or Stripe.
+If you want to support my work, you can donate me via Lightning (Bitcoin) or Stripe.
 
-bitcoin:bc1q60ntnlz4wqfup3yg3hyqmzfkuraf8clmvupqvs
+Lightning: mostroll13@walletofsatoshi.com
 
 [Donate me a coffee on Stripe](https://buy.stripe.com/5kA9EH5SAe778VO146)
 
