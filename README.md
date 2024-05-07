@@ -47,14 +47,25 @@ SendIntent.checkSendIntentReceived().then((result: any) => {
 Configure a new activity in AndroidManifest.xml!
 
 ```xml
+<!-- Your actual activity declaration -->
 <activity
-        android:name="de.mindlib.sendIntent.SendIntentActivity"
+      android:name=".MainActivity"
+    ...
+    ...
+    ...>
+</activity>
+
+<!-- Add new One Activity for handle Intent here -->
+<activity
+        android:name="de.mindlib.sendIntent.SendIntentActivity" <!-- Do not change this name, otherwise your application will crash -->
         android:label="@string/app_name"
         android:exported="true"
         android:theme="@style/AppTheme.NoActionBar">
     <intent-filter>
         <action android:name="android.intent.action.SEND" />
         <category android:name="android.intent.category.DEFAULT" />
+
+        <!-- Depending on your project, you can add here the type of data you wish to receive -->
         <data android:mimeType="text/plain" />
         <data android:mimeType="image/*" />
         <data android:mimeType="application/*" />
@@ -380,9 +391,9 @@ You should also exceute a call on app startup as described in [Usage](#usage), b
 
 ## Donation
 
-If you want to support my work, you can donate me on Bitcoin or Stripe.
+If you want to support my work, you can donate me via Lightning (Bitcoin) or Stripe.
 
-bitcoin:bc1q60ntnlz4wqfup3yg3hyqmzfkuraf8clmvupqvs
+Lightning: mostroll13@walletofsatoshi.com
 
 [Donate me a coffee on Stripe](https://buy.stripe.com/5kA9EH5SAe778VO146)
 
