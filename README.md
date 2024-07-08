@@ -389,6 +389,14 @@ window.addEventListener("sendIntentReceived", () => {
 
 You should also exceute a call on app startup as described in [Usage](#usage), because on a cold start the event-listener might not be registered early enough (see [https://github.com/carsten-klaffke/send-intent/issues/57]).
 
+## Donation
+
+If you want to support my work, you can donate me via Lightning (Bitcoin) or Stripe.
+
+Lightning: mostroll13@walletofsatoshi.com
+
+[Donate me a coffee on Stripe](https://buy.stripe.com/5kA9EH5SAe778VO146)
+
 ## Consulting
 
 I work as a freelance IT Consultant. If you need help with this plugin or want me to do the complete setup in your App, you can contact me at mail@carsten-klaffke.de.
