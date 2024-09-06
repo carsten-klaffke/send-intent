@@ -18,4 +18,4 @@ include ':capacitor-status-bar'
 project(':capacitor-status-bar').projectDir = new File('../node_modules/@capacitor/status-bar/android')
 
 include ':send-intent'
-project(':send-intent').projectDir = new File('../node_modules/send-intent/android')
+project(':send-intent').projectDir = new File('../../../android')

@@ -10,7 +10,7 @@ public class SendIntentPlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "SendIntentPlugin"
     public let jsName = "SendIntent"
     public let pluginMethods: [CAPPluginMethod] = [
-        CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "checkSendIntentReceived", returnType: CAPPluginReturnPromise)
     ]
     private let implementation = SendIntent()
 
