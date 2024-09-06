@@ -3,18 +3,24 @@ import Capacitor
 
 /**
  * Please read the Capacitor iOS Plugin Development Guide
- * here: https://capacitor.ionicframework.com/docs/plugins/ios
+ * here: https://capacitorjs.com/docs/plugins/ios
  */
-@objc(SendIntent)
-public class SendIntent: CAPPlugin {
-    
+@objc(SendIntentPlugin)
+public class SendIntentPlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "SendIntentPlugin"
+    public let jsName = "SendIntent"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise)
+    ]
+    private let implementation = SendIntent()
+
     let store = ShareStore.store
 
     @objc func checkSendIntentReceived(_ call: CAPPluginCall) {
         if !store.processed {
             let firstItem: JSObject? = store.shareItems.first
             let additionalItems: Array<JSObject> = store.shareItems.count > 1 ? Array(store.shareItems[1...]) : []
-            
+
             call.resolve([
                 "title": firstItem?["title"] ?? "",
                 "description": firstItem?["description"] ?? "",
@@ -40,5 +46,4 @@ public class SendIntent: CAPPlugin {
     @objc open func eval(){
         self.bridge?.eval(js: "window.dispatchEvent(new Event('sendIntentReceived'))");
     }
-
 }
