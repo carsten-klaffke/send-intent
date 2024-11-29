@@ -179,7 +179,7 @@ class ShareViewController: UIViewController {
         let fileManager = FileManager.default
         
         let copyFileUrl =
-        fileManager.containerURL(forSecurityApplicationGroupIdentifier: "group.SendIntentExample")!
+        fileManager.containerURL(forSecurityApplicationGroupIdentifier: "YOUR_APP_GROUP_ID")!
             .absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
         + "/screenshot_\(index).png"
         do {
@@ -297,15 +297,15 @@ class ShareViewController: UIViewController {
         }
     }
     
-    @objc func openURL(_ url: URL) -> Bool {
+    @objc func openURL(_ url: URL) {
         var responder: UIResponder? = self
         while responder != nil {
             if let application = responder as? UIApplication {
-                return application.perform(#selector(openURL(_:)), with: url) != nil
+                application.open(url, options: [:], completionHandler: nil)
+                return
             }
             responder = responder?.next
         }
-        return false
     }
     
 }
