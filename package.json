@@ -1,6 +1,6 @@
 {
   "name": "send-intent",
-  "version": "6.0.2",
+  "version": "6.0.3",
   "description": "SendIntent",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
