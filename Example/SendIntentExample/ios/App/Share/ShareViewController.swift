@@ -73,45 +73,21 @@ class ShareViewController: UIViewController {
         }
     }
     
-    func loadUrl(from attachment: NSItemProvider) async throws -> URL? {
-        return try await withCheckedThrowingContinuation { continuation in
-            // Hier der Typ URL (NSURL in Objective-C)
-            attachment.loadItem(forTypeIdentifier: kUTTypeURL as String, options: nil) { (urlData, error) in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                } else if let url = urlData as? URL {
-                    continuation.resume(returning: url)
-                } else if let url = urlData as? NSURL {
-                    continuation.resume(returning: url as URL)
-                } else {
-                    continuation.resume(returning: nil)
-                }
-            }
-        }
-    }
-    
     fileprivate func handleTypeUrl(_ attachment: NSItemProvider)
     async throws -> ShareItem
     {
+        let results = try await attachment.loadItem(forTypeIdentifier: kUTTypeURL as String, options: nil)
+        let url = results as! URL?
         let shareItem: ShareItem = ShareItem()
-        
-        if let results = try await loadUrl(from: attachment) {
-            
-            
-            let url = results as! URL?
-           
-            
-            if url!.isFileURL {
-                shareItem.title = url!.lastPathComponent
-                shareItem.type = "application/" + url!.pathExtension.lowercased()
-                shareItem.url = createSharedFileUrl(url)
-            } else {
-                shareItem.title = url!.absoluteString
-                shareItem.url = url!.absoluteString
-                shareItem.type = "text/plain"
-            }
+
+        if url!.isFileURL {
+            shareItem.title = url!.lastPathComponent
+            shareItem.type = "application/" + url!.pathExtension.lowercased()
+            shareItem.url = createSharedFileUrl(url)
         } else {
-            print("Keine URL gefunden")
+            shareItem.title = url!.absoluteString
+            shareItem.url = url!.absoluteString
+            shareItem.type = "text/plain"
         }
         
         return shareItem
