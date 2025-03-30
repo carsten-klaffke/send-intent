@@ -52,7 +52,7 @@ class ShareViewController: UIViewController {
         fileManager.containerURL(forSecurityApplicationGroupIdentifier: "group.SendIntentExample")!
             .absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)! + url!
             .lastPathComponent.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-        try? Data(contentsOf: url!).write(to: URL(string: copyFileUrl)!)
+        try? fileManager.copyItem(at: url!, to: URL(string: copyFileUrl)!)
         
         return copyFileUrl
     }
