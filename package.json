@@ -1,6 +1,9 @@
 {
   "name": "@mindlib-capacitor/send-intent",
-  "version": "8.0.1",
+  "version": "8.0.2",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "SendIntent",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -17,15 +20,12 @@
   ],
   "author": "Carsten Klaffke",
   "license": "MIT",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/carsten-klaffke/send-intent.git"
+    "url": "git+https://github.com/mindlib-capacitor/send-intent.git"
   },
   "bugs": {
-    "url": "https://github.com/carsten-klaffke/send-intent/issues"
+    "url": "https://github.com/mindlib-capacitor/send-intent/issues"
   },
   "keywords": [
     "capacitor",
