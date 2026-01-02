@@ -11,7 +11,7 @@ For projects below Capacitor 3 please use "send-intent": "1.1.7"!
 ## Installation
 
 ```
-npm install send-intent
+npm install @mindlib-capacitor/send-intent
 npx cap sync
 ```
 
@@ -24,7 +24,7 @@ The "url"-property of the SendIntent result is also used for web urls, e.g. when
 either through checking the "type"-property or by error handling!
 
 ```js
-import {SendIntent} from "send-intent";
+import { SendIntent } from "@mindlib-capacitor/send-intent";
 
 SendIntent.checkSendIntentReceived().then((result: any) => {
     if (result) {
