@@ -1,6 +1,6 @@
 {
   "name": "@mindlib-capacitor/send-intent",
-  "version": "8.0.0",
+  "version": "8.0.1",
   "description": "SendIntent",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
