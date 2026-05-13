@@ -182,15 +182,28 @@ class ShareViewController: UIViewController {
     }
     
     fileprivate func createSharedFileUrl(_ url: URL?) -> String {
+        guard let sourceUrl = url else {
+            return ""
+        }
+
         let fileManager = FileManager.default
-        
-        let copyFileUrl =
-        fileManager.containerURL(forSecurityApplicationGroupIdentifier: "YOUR_APP_GROUP_ID")!
-            .absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)! + url!
-            .lastPathComponent.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-        try? fileManager.copyItem(at: url!, to: URL(string: copyFileUrl)!)
-        
-        return copyFileUrl
+        guard let containerUrl = fileManager.containerURL(
+            forSecurityApplicationGroupIdentifier: "YOUR_APP_GROUP_ID"
+        ) else {
+            print("Failed to resolve app group container URL")
+            return ""
+        }
+
+        let sanitizedName = sourceUrl.lastPathComponent.replacingOccurrences(of: "/", with: "_")
+        let destinationUrl = containerUrl.appendingPathComponent("\(UUID().uuidString)_\(sanitizedName)")
+
+        do {
+            try fileManager.copyItem(at: sourceUrl, to: destinationUrl)
+            return destinationUrl.absoluteString
+        } catch {
+            print("Failed to copy shared file: \(error.localizedDescription)")
+            return ""
+        }
     }
     
     func saveScreenshot(_ image: UIImage, _ index: Int) -> String {
