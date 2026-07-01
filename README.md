@@ -426,8 +426,6 @@ If you want to support my work, you can donate me via Lightning (Bitcoin) or Str
 
 Lightning: mostroll13@walletofsatoshi.com
 
-[Donate me a coffee on Stripe](https://buy.stripe.com/5kA9EH5SAe778VO146)
-
 ## Consulting
 
 I work as a freelance IT Consultant. If you need help with this plugin or want me to do the complete setup in your App, you can contact me at mail@carsten-klaffke.de.
